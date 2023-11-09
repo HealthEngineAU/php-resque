@@ -1,6 +1,7 @@
 <?php
+
 if(empty($argv[1])) {
-	die('Specify the name of a job to add. e.g, php queue.php PHP_Job');
+    die('Specify the name of a job to add. e.g, php queue.php PHP_Job');
 }
 
 require __DIR__ . '/init.php';
@@ -12,15 +13,15 @@ date_default_timezone_set('GMT');
 //Resque::setBackend('redis://user:pass@a.host.name:3432/2');
 
 $args = array(
-	'time' => time(),
-	'array' => array(
-		'test' => 'test',
-	),
+    'time' => time(),
+    'array' => array(
+        'test' => 'test',
+    ),
 );
 if (empty($argv[2])) {
-	$jobId = \Resque\Resque::enqueue('default', $argv[1], $args, true);
+    $jobId = \Resque\Resque::enqueue('default', $argv[1], $args, true);
 } else {
-        $jobId = \Resque\Resque::enqueue($argv[1], $argv[2], $args, true);
+    $jobId = \Resque\Resque::enqueue($argv[1], $argv[2], $args, true);
 }
 
-echo "Queued job ".$jobId."\n\n";
+echo "Queued job " . $jobId . "\n\n";

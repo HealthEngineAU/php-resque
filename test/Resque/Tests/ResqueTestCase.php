@@ -2,9 +2,10 @@
 
 namespace Resque\Tests;
 
-use \Resque\Resque;
-use \PHPUnit_Framework_TestCase;
-use \Credis_Client;
+use Monolog\Handler\TestHandler;
+use PHPUnit\Framework\TestCase;
+use Redis;
+use Resque\Resque;
 
 /**
  * Resque test case class. Contains setup and teardown methods.
@@ -13,29 +14,32 @@ use \Credis_Client;
  * @author		Chris Boulton <chris@bigcommerce.com>
  * @license		http://www.opensource.org/licenses/mit-license.php
  */
-class ResqueTestCase extends PHPUnit_Framework_TestCase
+class ResqueTestCase extends TestCase
 {
-	protected $resque;
-	protected $redis;
-	protected $logger;
+    protected $resque;
+    protected $redis;
+    protected $logger;
+	protected TestHandler $loggerHandler;
 
-	public static function setUpBeforeClass()
-	{
-		date_default_timezone_set('UTC');
-	}
+    public static function setUpBeforeClass(): void
+    {
+        date_default_timezone_set('UTC');
+    }
 
-	public function setUp()
-	{
-		$config = file_get_contents(REDIS_CONF);
-		preg_match('#^\s*port\s+([0-9]+)#m', $config, $matches);
-		$this->redis = new Credis_Client('localhost', $matches[1]);
+    protected function setUp(): void
+    {
+        $config = file_get_contents(REDIS_CONF);
+        preg_match('#^\s*port\s+([0-9]+)#m', $config, $matches);
 
-		$this->logger = $this->getMockBuilder('Psr\Log\LoggerInterface')
-							 ->getMock();
+        $this->redis = new Redis();
+		$this->redis->connect('localhost', $matches[1]);
 
-		Resque::setBackend('redis://localhost:' . $matches[1]);
+        $this->logger = $this->getMockBuilder('Psr\Log\LoggerInterface')
+                             ->getMock();
 
-		// Flush redis
-		$this->redis->flushAll();
-	}
+        Resque::setBackend('redis://localhost:' . $matches[1]);
+
+        // Flush redis
+        $this->redis->flushAll();
+    }
 }

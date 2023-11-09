@@ -4,8 +4,8 @@ namespace Resque\Job;
 
 interface JobInterface
 {
-	/**
-	 * @return bool
-	 */
-	public function perform();
+    /**
+     * @return bool
+     */
+    public function perform();
 }

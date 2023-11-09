@@ -10,6 +10,4 @@ namespace Resque\Exceptions;
  * @copyright	(c) 2012 Chris Boulton
  * @license		http://www.opensource.org/licenses/mit-license.php
  */
-class InvalidTimestampException extends ResqueException
-{
-}
+class InvalidTimestampException extends ResqueException {}

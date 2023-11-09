@@ -2,13 +2,15 @@
 
 namespace Resque\Tests;
 
-use \Resque\Worker\ResqueWorker;
-use \Resque\Event;
-use \Resque\JobHandler;
-use \Resque\Resque;
-use \Resque\Exceptions\DoNotCreateException;
-use \Resque\Exceptions\DoNotPerformException;
-use \Test_Job;
+use Monolog\Handler\TestHandler;
+use Monolog\Logger;
+use Resque\Worker\ResqueWorker;
+use Resque\Event;
+use Resque\JobHandler;
+use Resque\Resque;
+use Resque\Exceptions\DoNotCreateException;
+use Resque\Exceptions\DoNotPerformException;
+use Test_Job;
 
 /**
  * Event tests.
@@ -16,208 +18,214 @@ use \Test_Job;
  * @package		Resque/Tests
  * @author		Chris Boulton <chris@bigcommerce.com>
  * @license		http://www.opensource.org/licenses/mit-license.php
+ * @covers \Resque\Event
  */
 class EventTest extends ResqueTestCase
 {
-	private $callbacksHit = array();
+    private $callbacksHit = array();
 
-	public function setUp()
-	{
-		Test_Job::$called = false;
+    protected function setUp(): void
+    {
+        Test_Job::$called = false;
 
-		$this->logger = $this->getMockBuilder('Psr\Log\LoggerInterface')
-			->getMock();
+		$this->loggerHandler = new TestHandler();
+        $this->logger = new Logger('testing', [$this->loggerHandler]);
 
-		// Register a worker to test with
-		$this->worker = new ResqueWorker('jobs');
-		$this->worker->setLogger($this->logger);
-		$this->worker->registerWorker();
-	}
+        // Register a worker to test with
+        $this->worker = new ResqueWorker('jobs');
+        $this->worker->setLogger($this->logger);
+        $this->worker->registerWorker();
+    }
 
-	public function tearDown()
-	{
-		Event::clearListeners();
-		$this->callbacksHit = array();
-	}
+    protected function tearDown(): void
+    {
+        Event::clearListeners();
+        $this->callbacksHit = array();
+    }
 
-	public function getEventTestJob()
-	{
-		$payload = array(
-			'class' => 'Test_Job',
-			'args' => array(
-				array('somevar'),
-			),
-		);
-		$job = new JobHandler('jobs', $payload);
-		$job->worker = $this->worker;
-		return $job;
-	}
+    public function getEventTestJob()
+    {
+        $payload = array(
+            'class' => 'Test_Job',
+            'args' => array(
+                array('somevar'),
+            ),
+        );
+        $job = new JobHandler('jobs', $payload);
+        $job->worker = $this->worker;
+        return $job;
+    }
 
-	public function eventCallbackProvider()
-	{
-		return array(
-			array('beforePerform', 'beforePerformEventCallback'),
-			array('afterPerform', 'afterPerformEventCallback'),
-			array('afterFork', 'afterForkEventCallback'),
-		);
-	}
+    public static function eventCallbackProvider()
+    {
+        return array(
+            array('beforePerform', 'beforePerformEventCallback'),
+            array('afterPerform', 'afterPerformEventCallback'),
+            array('afterFork', 'afterForkEventCallback'),
+        );
+    }
 
-	/**
-	 * @dataProvider eventCallbackProvider
-	 */
-	public function testEventCallbacksFire($event, $callback)
-	{
-		Event::listen($event, array($this, $callback));
+    /**
+     * @dataProvider eventCallbackProvider
+     */
+    public function testEventCallbacksFire($event, $callback)
+    {
+        Event::listen($event, array($this, $callback));
 
-		$job = $this->getEventTestJob();
+        $job = $this->getEventTestJob();
+        $this->worker->perform($job);
+        $this->worker->work(0);
 
-		$this->logger->expects($this->exactly(3))
-			->method('log')
-			->withConsecutive(
-				[ 'notice', '{job} has finished', [ 'job' => $job ] ],
-				[ 'debug', 'Registered signals', [] ],
-				[ 'info', 'Checking {queue} for jobs', [ 'queue' => 'jobs' ] ]
-			);
+        $this->assertContains($callback, $this->callbacksHit, $event . ' callback (' . $callback . ') was not called');
+		$this->assertTrue($this->loggerHandler->hasDebug([
+			'context' => [],
+			'message' => 'Registered signals',
+		]));
+		$this->assertTrue($this->loggerHandler->hasInfo([
+			'context' => ['queue' => 'jobs'],
+			'message' => 'Checking {queue} for jobs',
+		]));
+		$this->assertTrue($this->loggerHandler->hasNotice([
+			'context' => ['job' => $job],
+			'message' => '{job} has finished',
+		]));
+    }
 
-		$this->worker->perform($job);
-		$this->worker->work(0);
+    public function testBeforeForkEventCallbackFires()
+    {
+        $event = 'beforeFork';
+        $callback = 'beforeForkEventCallback';
 
-		$this->assertContains($callback, $this->callbacksHit, $event . ' callback (' . $callback .') was not called');
-	}
+        Event::listen($event, array($this, $callback));
+        Resque::enqueue('jobs', 'Test_Job', array(
+            'somevar'
+        ));
 
-	public function testBeforeForkEventCallbackFires()
-	{
-		$event = 'beforeFork';
-		$callback = 'beforeForkEventCallback';
+        $this->worker->work(0);
+        $this->assertContains($callback, $this->callbacksHit, $event . ' callback (' . $callback . ') was not called');
+    }
 
-		Event::listen($event, array($this, $callback));
-		Resque::enqueue('jobs', 'Test_Job', array(
-			'somevar'
-		));
-		$job = $this->getEventTestJob();
+    public function testBeforeEnqueueEventCallbackFires()
+    {
+        $event = 'beforeEnqueue';
+        $callback = 'beforeEnqueueEventCallback';
 
-		$this->worker->work(0);
-		$this->assertContains($callback, $this->callbacksHit, $event . ' callback (' . $callback .') was not called');
-	}
+        Event::listen($event, array($this, $callback));
+        Resque::enqueue('jobs', 'Test_Job', array(
+            'somevar'
+        ));
+        $this->assertContains($callback, $this->callbacksHit, $event . ' callback (' . $callback . ') was not called');
+    }
 
-	public function testBeforeEnqueueEventCallbackFires()
-	{
-		$event = 'beforeEnqueue';
-		$callback = 'beforeEnqueueEventCallback';
+    public function testBeforePerformEventCanStopWork()
+    {
+        $callback = 'beforePerformEventDontPerformCallback';
+        Event::listen('beforePerform', array($this, $callback));
 
-		Event::listen($event, array($this, $callback));
-		Resque::enqueue('jobs', 'Test_Job', array(
-			'somevar'
-		));
-		$this->assertContains($callback, $this->callbacksHit, $event . ' callback (' . $callback .') was not called');
-	}
+        $job = $this->getEventTestJob();
 
-	public function testBeforePerformEventCanStopWork()
-	{
-		$callback = 'beforePerformEventDontPerformCallback';
-		Event::listen('beforePerform', array($this, $callback));
+        $this->assertFalse($job->perform());
+        $this->assertContains($callback, $this->callbacksHit, $callback . ' callback was not called');
+        $this->assertFalse(Test_Job::$called, 'Job was still performed though DoNotPerformException was thrown');
+    }
 
-		$job = $this->getEventTestJob();
+    public function testBeforeEnqueueEventStopsJobCreation()
+    {
+        $callback = 'beforeEnqueueEventDontCreateCallback';
+        Event::listen('beforeEnqueue', array($this, $callback));
+        Event::listen('afterEnqueue', array($this, 'afterEnqueueEventCallback'));
 
-		$this->assertFalse($job->perform());
-		$this->assertContains($callback, $this->callbacksHit, $callback . ' callback was not called');
-		$this->assertFalse(Test_Job::$called, 'Job was still performed though DoNotPerformException was thrown');
-	}
+        $result = Resque::enqueue('test_job', 'TestClass');
+        $this->assertContains($callback, $this->callbacksHit, $callback . ' callback was not called');
+        $this->assertNotContains('afterEnqueueEventCallback', $this->callbacksHit, 'afterEnqueue was still called, even though it should not have been');
+        $this->assertFalse($result);
+    }
 
-	public function testBeforeEnqueueEventStopsJobCreation()
-	{
-		$callback = 'beforeEnqueueEventDontCreateCallback';
-		Event::listen('beforeEnqueue', array($this, $callback));
-		Event::listen('afterEnqueue', array($this, 'afterEnqueueEventCallback'));
+    public function testAfterEnqueueEventCallbackFires()
+    {
+        $callback = 'afterEnqueueEventCallback';
+        $event    = 'afterEnqueue';
 
-		$result = Resque::enqueue('test_job', 'TestClass');
-		$this->assertContains($callback, $this->callbacksHit, $callback . ' callback was not called');
-		$this->assertNotContains('afterEnqueueEventCallback', $this->callbacksHit, 'afterEnqueue was still called, even though it should not have been');
-		$this->assertFalse($result);
-	}
+        Event::listen($event, array($this, $callback));
+        Resque::enqueue('jobs', 'Test_Job', array(
+            'somevar'
+        ));
+        $this->assertContains($callback, $this->callbacksHit, $event . ' callback (' . $callback . ') was not called');
+    }
 
-	public function testAfterEnqueueEventCallbackFires()
-	{
-		$callback = 'afterEnqueueEventCallback';
-		$event    = 'afterEnqueue';
+    public function testStopListeningRemovesListener()
+    {
+        $callback = 'beforePerformEventCallback';
+        $event    = 'beforePerform';
 
-		Event::listen($event, array($this, $callback));
-		Resque::enqueue('jobs', 'Test_Job', array(
-			'somevar'
-		));
-		$this->assertContains($callback, $this->callbacksHit, $event . ' callback (' . $callback .') was not called');
-	}
+        Event::listen($event, array($this, $callback));
+        Event::stopListening($event, array($this, $callback));
 
-	public function testStopListeningRemovesListener()
-	{
-		$callback = 'beforePerformEventCallback';
-		$event    = 'beforePerform';
+        $job = $this->getEventTestJob();
+        $this->worker->perform($job);
+        $this->worker->work(0);
 
-		Event::listen($event, array($this, $callback));
-		Event::stopListening($event, array($this, $callback));
+        $this->assertNotContains(
+            $callback,
+            $this->callbacksHit,
+            $event . ' callback (' . $callback . ') was called though Event::stopListening was called'
+        );
+    }
 
-		$job = $this->getEventTestJob();
-		$this->worker->perform($job);
-		$this->worker->work(0);
+    public function beforePerformEventDontPerformCallback($instance)
+    {
+        $this->callbacksHit[] = __FUNCTION__;
+        throw new DoNotPerformException();
+    }
 
-		$this->assertNotContains($callback, $this->callbacksHit,
-			$event . ' callback (' . $callback .') was called though Event::stopListening was called'
-		);
-	}
+    public function beforeEnqueueEventDontCreateCallback($queue, $class, $args, $id, $track = false)
+    {
+        $this->callbacksHit[] = __FUNCTION__;
+        throw new DoNotCreateException();
+    }
 
-	public function beforePerformEventDontPerformCallback($instance)
-	{
-		$this->callbacksHit[] = __FUNCTION__;
-		throw new DoNotPerformException;
-	}
+    public function assertValidEventCallback($function, $job)
+    {
+        $this->callbacksHit[] = $function;
+        if (!$job instanceof JobHandler) {
+            $this->fail('Callback job argument is not an instance of JobHandler');
+        }
+        $args = $job->getArguments();
+        $this->assertEquals($args[0], 'somevar');
+    }
 
-	public function beforeEnqueueEventDontCreateCallback($queue, $class, $args, $track = false)
-	{
-		$this->callbacksHit[] = __FUNCTION__;
-		throw new DoNotCreateException;
-	}
+    public function afterEnqueueEventCallback($args, $class, $id, $queue)
+    {
+        $this->callbacksHit[] = __FUNCTION__;
+        $this->assertEquals('Test_Job', $class);
+        $this->assertEquals(array(
+            'somevar',
+        ), $args);
+		$this->assertEquals('jobs', $queue);
+    }
 
-	public function assertValidEventCallback($function, $job)
-	{
-		$this->callbacksHit[] = $function;
-		if (!$job instanceof JobHandler) {
-			$this->fail('Callback job argument is not an instance of JobHandler');
-		}
-		$args = $job->getArguments();
-		$this->assertEquals($args[0], 'somevar');
-	}
+    public function beforeEnqueueEventCallback($args, $class, $id, $queue)
+    {
+        $this->callbacksHit[] = __FUNCTION__;
+    }
 
-	public function afterEnqueueEventCallback($class, $args)
-	{
-		$this->callbacksHit[] = __FUNCTION__;
-		$this->assertEquals('Test_Job', $class);
-		$this->assertEquals(array(
-			'somevar',
-		), $args);
-	}
+    public function beforePerformEventCallback($job)
+    {
+        $this->assertValidEventCallback(__FUNCTION__, $job);
+    }
 
-	public function beforeEnqueueEventCallback($job)
-	{
-		$this->callbacksHit[] = __FUNCTION__;
-	}
+    public function afterPerformEventCallback($job)
+    {
+        $this->assertValidEventCallback(__FUNCTION__, $job);
+    }
 
-	public function beforePerformEventCallback($job)
-	{
-		$this->assertValidEventCallback(__FUNCTION__, $job);
-	}
+    public function beforeForkEventCallback($job)
+    {
+        $this->assertValidEventCallback(__FUNCTION__, $job);
+    }
 
-	public function afterPerformEventCallback($job)
-	{
-		$this->assertValidEventCallback(__FUNCTION__, $job);
-	}
-
-	public function beforeForkEventCallback($job)
-	{
-		$this->assertValidEventCallback(__FUNCTION__, $job);
-	}
-
-	public function afterForkEventCallback($job)
-	{
-		$this->assertValidEventCallback(__FUNCTION__, $job);
-	}
+    public function afterForkEventCallback($job)
+    {
+        $this->assertValidEventCallback(__FUNCTION__, $job);
+    }
 }
