@@ -19,17 +19,17 @@ class RedisTest extends ResqueTestCase
 {
     public function testRedisExceptionsAreSurfaced()
     {
-		$mockRedis = $this->createPartialMock(PhpRedis::class, ['connect', 'ping']);
-		$mockRedis
-			->expects($this->any())
-			->method('ping')
+        $mockRedis = $this->createPartialMock(PhpRedis::class, ['connect', 'ping']);
+        $mockRedis
+            ->expects($this->any())
+            ->method('ping')
             ->willThrowException(new \RedisException('failure'));
 
         Resque::setBackend(function ($database) use ($mockRedis) {
             return new Redis('localhost:6379', $database, $mockRedis);
         });
 
-		$this->expectException(RedisException::class);
+        $this->expectException(RedisException::class);
 
         Resque::redis()->ping();
     }
@@ -199,7 +199,7 @@ class RedisTest extends ResqueTestCase
      */
     public function testParsingBogusDsnStringThrowsException($dsn)
     {
-		$this->expectException(\InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
 
         Redis::parseDsn($dsn);
     }

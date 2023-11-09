@@ -35,7 +35,7 @@ class Status
     private $isTracking = null;
 
     /**
-     * @var array Array of statuses that are considered final/complete.
+     * @var int[] Array of statuses that are considered final/complete.
      */
     private static $completeStatuses = array(
         self::STATUS_FAILED,
@@ -47,10 +47,10 @@ class Status
      *
      * @param string $id The ID of the job to manage the status for.
      */
-    public function __construct($id, $prefix = '')
+    public function __construct(string $id, string $prefix = '')
     {
         $this->id = $id;
-        $this->prefix = empty($prefix) ? '' : "${prefix}_";
+        $this->prefix = trim($prefix) === '' ? '' : "${prefix}_";
     }
 
     /**
@@ -59,7 +59,7 @@ class Status
      *
      * @param string $id The ID of the job to monitor the status of.
      */
-    public static function create($id, $prefix = "")
+    public static function create(string $id, string $prefix = ""): Status
     {
         $status = new self($id, $prefix);
         $statusPacket = array(
@@ -68,7 +68,7 @@ class Status
             'started' => time(),
             'result'  => null,
         );
-        Resque::redis()->set((string) $status, json_encode($statusPacket));
+        Resque::redis()->set((string) $status, json_encode($statusPacket, JSON_THROW_ON_ERROR));
 
         return $status;
     }
@@ -85,7 +85,9 @@ class Status
             return false;
         }
 
-        if (!Resque::redis()->exists((string)$this)) {
+        $exists = Resque::redis()->exists((string)$this);
+
+        if (!is_int($exists) || $exists === 0) {
             $this->isTracking = false;
             return false;
         }
@@ -97,12 +99,11 @@ class Status
     /**
      * Update the status indicator for the current job with a new status.
      *
-     * @param int The status of the job (see constants in Resque\Job\Status)
+     * @param int $status The status of the job (see constants in {@see \Resque\Job\Status})
+     * @param bool|null $result
      */
-    public function update($status, $result = null)
+    public function update(int $status, bool|null $result = null): void
     {
-        $status = (int) $status;
-
         if (!$this->isTracking()) {
             return;
         }
@@ -120,7 +121,7 @@ class Status
         Resque::redis()->set((string)$this, json_encode($statusPacket));
 
         // Expire the status for completed jobs after 24 hours
-        if (in_array($status, self::$completeStatuses)) {
+        if (in_array($status, self::$completeStatuses, true)) {
             Resque::redis()->expire((string)$this, 86400);
         }
     }
@@ -128,7 +129,7 @@ class Status
     /**
      * Fetch the status for the job being monitored.
      *
-     * @return mixed False if the status is not being monitored, otherwise the status
+     * @return false|int|null False if the status is not being monitored, otherwise the status
      * 	as an integer, based on the Resque\Job\Status constants.
      */
     public function get()
@@ -139,8 +140,8 @@ class Status
     /**
      * Fetch the status for the job being monitored.
      *
-     * @return mixed False if the status is not being monitored, otherwise the status
-     * 	as an integer, based on the Resque\Job\Status constants.
+     * @return false|int|null False if the status is not being monitored, otherwise the status
+     * 	as an integer, based on the {@see \Resque\Job\Status} constants.
      */
     public function status()
     {
@@ -183,7 +184,7 @@ class Status
     /**
      * Stop tracking the status of a job.
      */
-    public function stop()
+    public function stop(): void
     {
         Resque::redis()->del((string)$this);
     }
@@ -201,28 +202,42 @@ class Status
     /**
     * Fetch a value from the status packet for the job being monitored.
     *
-    * @return mixed False if the status is not being monitored, otherwise the
+    * @return false|int|null False if the status is not being monitored, otherwise the
     *  requested value from the status packet.
+     * @throws \JsonException
     */
-    protected function fetch($value = null)
+    protected function fetch(string $value)
     {
         if (!$this->isTracking()) {
             return false;
         }
 
-        $statusPacket = json_decode(Resque::redis()->get((string)$this), true);
-        if (!$statusPacket) {
+        $jobAsString = (string)$this;
+        $jsonEncodedJob = Resque::redis()->get($jobAsString);
+
+        if (!is_string($jsonEncodedJob)) {
             return false;
         }
 
-        if (empty($value)) {
-            return $statusPacket;
+        $statusPacket = json_decode($jsonEncodedJob, true, 512, JSON_THROW_ON_ERROR);
+
+        if (!is_array($statusPacket)) {
+            return false;
+        }
+
+        /**
+         * @var array{
+         *     result: null,
+         *     started: int,
+         *     status: int,
+         *     updated: int
+         * } $statusPacket
+         */
+
+        if (array_key_exists($value, $statusPacket)) {
+            return $statusPacket[$value];
         } else {
-            if (isset($statusPacket[$value])) {
-                return $statusPacket[$value];
-            } else {
-                return null;
-            }
+            return null;
         }
     }
 }

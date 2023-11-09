@@ -15,13 +15,14 @@ use Stringable;
  */
 class Logger extends AbstractLogger
 {
-    public $verbose;
+    public function __construct(public bool $verbose = false) {}
 
-    public function __construct($verbose = false)
-    {
-        $this->verbose = $verbose;
-    }
-
+    /**
+     * @param mixed $level
+     * @param string|Stringable $message
+     * @param array<string, string> $context
+     * @return void
+     */
     public function log($level, string|Stringable $message, array $context = []): void
     {
         if ($this->verbose) {
@@ -45,10 +46,10 @@ class Logger extends AbstractLogger
      * @author Jordi Boggiano j.boggiano@seld.be
      *
      * @param  string  $message  Message to be logged
-     * @param  array   $context  Array of variables to use in message
+     * @param  array<string, string>   $context  Array of variables to use in message
      * @return string
      */
-    public function interpolate($message, array $context = array())
+    public function interpolate($message, array $context = [])
     {
         // build a replacement array with braces around the context keys
         $replace = array();

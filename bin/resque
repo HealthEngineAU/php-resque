@@ -2,6 +2,13 @@
 <?php
 
 // Find and initialize Composer
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
+use Resque\Logger;
+use Resque\Redis as ResqueRedis;
+use Resque\Resque;
+use Resque\Worker\ResqueWorker;
+
 $files = array(
     __DIR__ . '/../../vendor/autoload.php',
     __DIR__ . '/../../../autoload.php',
@@ -17,16 +24,8 @@ foreach ($files as $file) {
     }
 }
 
-if (!class_exists('Composer\Autoload\ClassLoader', false)) {
-    die(
-        'You need to set up the project dependencies using the following commands:' . PHP_EOL .
-            'curl -s http://getcomposer.org/installer | php' . PHP_EOL .
-            'php composer.phar install' . PHP_EOL
-    );
-}
-
 $QUEUE = getenv('QUEUE');
-if(empty($QUEUE)) {
+if(!is_string($QUEUE) || trim($QUEUE) === '') {
     die("Set QUEUE env var containing the list of queues to work.\n");
 }
 
@@ -40,148 +39,157 @@ $REDIS_BACKEND = getenv('REDIS_BACKEND');
 
 // A redis database number
 $REDIS_BACKEND_DB = getenv('REDIS_BACKEND_DB');
-if(!empty($REDIS_BACKEND)) {
-    if (empty($REDIS_BACKEND_DB))
-        \Resque\Resque::setBackend($REDIS_BACKEND);
-    else
-        \Resque\Resque::setBackend($REDIS_BACKEND, $REDIS_BACKEND_DB);
+
+if (is_string($REDIS_BACKEND) && trim($REDIS_BACKEND) !== '') {
+    if (!is_string($REDIS_BACKEND_DB) || trim($REDIS_BACKEND_DB) === '') {
+        Resque::setBackend($REDIS_BACKEND);
+    } else {
+        Resque::setBackend($REDIS_BACKEND, (int)$REDIS_BACKEND_DB);
+    }
 }
 
 $logLevel = false;
 $LOGGING = getenv('LOGGING');
 $VERBOSE = getenv('VERBOSE');
 $VVERBOSE = getenv('VVERBOSE');
-if(!empty($LOGGING) || !empty($VERBOSE)) {
+
+if (is_string($LOGGING) && trim($LOGGING) !== '' || is_string($VERBOSE) && trim($VERBOSE) !== '') {
     $logLevel = true;
-}
-else if(!empty($VVERBOSE)) {
+} elseif (is_string($VVERBOSE) && trim($VVERBOSE) !== '') {
     $logLevel = true;
 }
 
 $APP_INCLUDE = getenv('APP_INCLUDE');
-if($APP_INCLUDE) {
+
+if (is_string($APP_INCLUDE) && trim($APP_INCLUDE) !== '') {
     if(!file_exists($APP_INCLUDE)) {
-        die('APP_INCLUDE ('.$APP_INCLUDE.") does not exist.\n");
+        die('APP_INCLUDE (' . $APP_INCLUDE . ") does not exist.\n");
     }
 
     require_once $APP_INCLUDE;
 }
 
-// See if the APP_INCLUDE containes a logger object,
+// See if the APP_INCLUDE contains a logger object,
 // If none exists, fallback to internal logger
-if (!isset($logger) || !is_object($logger)) {
-    $logger = new \Resque\Logger($logLevel);
+if (!isset($logger) || !($logger instanceof LoggerInterface)) {
+    $logger = new Logger($logLevel);
 }
 
-$BLOCKING = getenv('BLOCKING') !== FALSE;
+$BLOCKING = getenv('BLOCKING') !== false;
 
 $interval = 5;
 $INTERVAL = getenv('INTERVAL');
-if(!empty($INTERVAL)) {
-    $interval = $INTERVAL;
+if (is_string($INTERVAL) && trim($INTERVAL) !== '') {
+    $interval = (int)$INTERVAL;
 }
 
 $count = 1;
 $COUNT = getenv('COUNT');
-if(!empty($COUNT) && $COUNT > 1) {
+
+if (is_string($COUNT) && trim($COUNT) !== '' && (int)$COUNT > 1) {
     $count = $COUNT;
 }
 
 $PREFIX = getenv('PREFIX');
-if(!empty($PREFIX)) {
-    $logger->log(\Psr\Log\LogLevel::INFO, 'Prefix set to {prefix}', array('prefix' => $PREFIX));
-    \Resque\Redis::prefix($PREFIX);
+
+if (is_string($PREFIX) && trim($PREFIX) !== '') {
+    $logger->log(LogLevel::INFO, 'Prefix set to {prefix}', array('prefix' => $PREFIX));
+    ResqueRedis::prefix($PREFIX);
 }
 
-function cleanup_children($signal){
-	$GLOBALS['send_signal'] = $signal;
+/**
+ * @param int $signal
+ * @return void
+ */
+function cleanup_children($signal): void
+{
+    $GLOBALS['send_signal'] = $signal;
 }
 
 if($count > 1) {
-	$children = array();
-	$GLOBALS['send_signal'] = FALSE;
+    $children = array();
 
-	$die_signals = array(SIGTERM, SIGINT, SIGQUIT);
-	$all_signals = array_merge($die_signals, array(SIGUSR1, SIGUSR2, SIGCONT, SIGPIPE));
+    /** @var array{ send_signal: int|false } $GLOBALS */
+    $GLOBALS['send_signal'] = false;
 
-	for($i = 0; $i < $count; ++$i) {
-		$pid = \Resque\Resque::fork();
-		if($pid == -1) {
-			die("Could not fork worker ".$i."\n");
-		}
-		// Child, start the worker
-		elseif(!$pid) {
-			$queues = explode(',', $QUEUE);
-			$worker = new \Resque\Worker\ResqueWorker($queues);
-			$worker->setLogger($logger);
-			$worker->hasParent = TRUE;
-			fwrite(STDOUT, '*** Starting worker '.$worker."\n");
-			$worker->work($interval);
-			break;
-		}
-		else {
-			$children[$pid] = 1;
-			while (count($children) == $count){
-				if (!isset($registered)) {
-					declare(ticks = 1);
-					foreach ($all_signals as $signal) {
-						pcntl_signal($signal,  "cleanup_children");
-					}
+    $die_signals = array(SIGTERM, SIGINT, SIGQUIT);
+    $all_signals = array_merge($die_signals, array(SIGUSR1, SIGUSR2, SIGCONT, SIGPIPE));
 
-					$PIDFILE = getenv('PIDFILE');
-					if ($PIDFILE) {
-						if(file_put_contents($PIDFILE, getmypid()) === false){
-							$logger->log(\Psr\Log\LogLevel::NOTICE, 'Could not write PID information to {pidfile}', array('pidfile' => $PIDFILE));
-                                                        die(2);
-                                                }
-					}
+    for($i = 0; $i < $count; ++$i) {
+        $pid = Resque::fork();
+        if ($pid === false) {
+            die("Could not fork worker " . $i . "\n");
+        } elseif ($pid === 0) {
+            // Child, start the worker
+            $queues = explode(',', $QUEUE);
+            $worker = new ResqueWorker($queues);
+            $worker->setLogger($logger);
+            $worker->hasParent = true;
+            fwrite(STDOUT, '*** Starting worker ' . $worker . "\n");
+            $worker->work($interval);
+            break;
+        } else {
+            $children[$pid] = 1;
+            while (count($children) == $count) {
+                if (!isset($registered)) {
+                    declare(ticks=1);
+                    foreach ($all_signals as $signal) {
+                        pcntl_signal($signal, "cleanup_children");
+                    }
 
-					$registered = TRUE;
-				}
+                    $PIDFILE = getenv('PIDFILE');
+                    if (is_string($PIDFILE) && trim($PIDFILE) !== '') {
+                        if(file_put_contents($PIDFILE, getmypid()) === false) {
+                            $logger->log(LogLevel::NOTICE, 'Could not write PID information to {pidfile}', array('pidfile' => $PIDFILE));
+                            die(2);
+                        }
+                    }
 
-				if(function_exists('setproctitle')) {
-					setproctitle('resque-' . \Resque\Resque::VERSION . ": Monitoring {$count} children: [".implode(',', array_keys($children))."]");
-				}
+                    $registered = true;
+                }
 
-				$childPID = pcntl_waitpid(-1, $childStatus, WNOHANG);
-				if ($childPID != 0) {
-					fwrite(STDOUT, "*** A child worker died: {$childPID}\n");
-					unset($children[$childPID]);
-					$i--;
-				}
-				usleep(250000);
-				if ($GLOBALS['send_signal'] !== FALSE){
-					foreach ($children as $k => $v){
-						posix_kill($k, $GLOBALS['send_signal']);
-						if (in_array($GLOBALS['send_signal'], $die_signals)) {
-							pcntl_waitpid($k, $childStatus);
-						}
-					}
-					if (in_array($GLOBALS['send_signal'], $die_signals)) {
-						exit;
-					}
-					$GLOBALS['send_signal'] = FALSE;
-				}
-			}
-		}
-	}
+                if(function_exists('setproctitle')) {
+                    setproctitle('resque-' . Resque::VERSION . ": Monitoring {$count} children: [" . implode(',', array_keys($children)) . "]");
+                }
+
+                $childPID = pcntl_waitpid(-1, $childStatus, WNOHANG);
+                if ($childPID != 0) {
+                    fwrite(STDOUT, "*** A child worker died: {$childPID}\n");
+                    unset($children[$childPID]);
+                    $i--;
+                }
+                usleep(250000);
+                if ($GLOBALS['send_signal'] !== false) {
+                    foreach ($children as $k => $v) {
+                        posix_kill($k, $GLOBALS['send_signal']);
+                        if (in_array($GLOBALS['send_signal'], $die_signals, true)) {
+                            pcntl_waitpid($k, $childStatus);
+                        }
+                    }
+                    if (in_array($GLOBALS['send_signal'], $die_signals, true)) {
+                        exit;
+                    }
+                    $GLOBALS['send_signal'] = false;
+                }
+            }
+        }
+    }
 }
 // Start a single worker
 else {
-	$queues = explode(',', $QUEUE);
-	$worker = new \Resque\Worker\ResqueWorker($queues);
-	$worker->setLogger($logger);
-	$worker->hasParent = FALSE;
+    $queues = explode(',', $QUEUE);
+    $worker = new ResqueWorker($queues);
+    $worker->setLogger($logger);
+    $worker->hasParent = false;
 
-	$PIDFILE = getenv('PIDFILE');
-	if ($PIDFILE) {
-		if(file_put_contents($PIDFILE, getmypid()) === false) {
-			$logger->log(\Psr\Log\LogLevel::NOTICE, 'Could not write PID information to {pidfile}', array('pidfile' => $PIDFILE));
-                        die(2);
-                }
-	}
+    $PIDFILE = getenv('PIDFILE');
+    if (is_string($PIDFILE) && trim($PIDFILE) !== '') {
+        if(file_put_contents($PIDFILE, getmypid()) === false) {
+            $logger->log(LogLevel::NOTICE, 'Could not write PID information to {pidfile}', array('pidfile' => $PIDFILE));
+            die(2);
+        }
+    }
 
-    $logger->log(\Psr\Log\LogLevel::NOTICE, 'Starting worker {worker}', array('worker' => $worker));
+    $logger->log(LogLevel::NOTICE, 'Starting worker {worker}', array('worker' => $worker));
     $worker->work($interval, $BLOCKING);
 }
-?>

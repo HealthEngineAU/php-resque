@@ -28,7 +28,7 @@ class EventTest extends ResqueTestCase
     {
         Test_Job::$called = false;
 
-		$this->loggerHandler = new TestHandler();
+        $this->loggerHandler = new TestHandler();
         $this->logger = new Logger('testing', [$this->loggerHandler]);
 
         // Register a worker to test with
@@ -77,18 +77,18 @@ class EventTest extends ResqueTestCase
         $this->worker->work(0);
 
         $this->assertContains($callback, $this->callbacksHit, $event . ' callback (' . $callback . ') was not called');
-		$this->assertTrue($this->loggerHandler->hasDebug([
-			'context' => [],
-			'message' => 'Registered signals',
-		]));
-		$this->assertTrue($this->loggerHandler->hasInfo([
-			'context' => ['queue' => 'jobs'],
-			'message' => 'Checking {queue} for jobs',
-		]));
-		$this->assertTrue($this->loggerHandler->hasNotice([
-			'context' => ['job' => $job],
-			'message' => '{job} has finished',
-		]));
+        $this->assertTrue($this->loggerHandler->hasDebug([
+            'context' => [],
+            'message' => 'Registered signals',
+        ]));
+        $this->assertTrue($this->loggerHandler->hasInfo([
+            'context' => ['queue' => 'jobs'],
+            'message' => 'Checking {queue} for jobs',
+        ]));
+        $this->assertTrue($this->loggerHandler->hasNotice([
+            'context' => ['job' => $job],
+            'message' => '{job} has finished',
+        ]));
     }
 
     public function testBeforeForkEventCallbackFires()
@@ -201,7 +201,7 @@ class EventTest extends ResqueTestCase
         $this->assertEquals(array(
             'somevar',
         ), $args);
-		$this->assertEquals('jobs', $queue);
+        $this->assertEquals('jobs', $queue);
     }
 
     public function beforeEnqueueEventCallback($args, $class, $id, $queue)

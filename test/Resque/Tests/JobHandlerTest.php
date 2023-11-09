@@ -44,15 +44,15 @@ class JobHandlerTest extends ResqueTestCase
 
     public function testRedisErrorThrowsExceptionOnJobCreation()
     {
-		$mockRedis = $this->createMock(\Redis::class);
-		$mockRedis->method('connect')->willReturn(true);
-		$mockRedis->method('sadd')->willThrowException(new \RedisException('sAdd failure'));
+        $mockRedis = $this->createMock(\Redis::class);
+        $mockRedis->method('connect')->willReturn(true);
+        $mockRedis->method('sadd')->willThrowException(new \RedisException('sAdd failure'));
 
         Resque::setBackend(function ($database) use ($mockRedis) {
             return new Redis('localhost:6379', $database, $mockRedis);
         });
 
-		$this->expectException(RedisException::class);
+        $this->expectException(RedisException::class);
 
         Resque::enqueue('jobs', 'This is a test');
     }
@@ -74,7 +74,7 @@ class JobHandlerTest extends ResqueTestCase
         $args = new stdClass();
         $args->test = 'somevalue';
 
-		$this->expectException(\InvalidArgumentException::class);
+        $this->expectException(\TypeError::class);
 
         Resque::enqueue('jobs', 'Test_Job', $args);
     }
@@ -152,7 +152,7 @@ class JobHandlerTest extends ResqueTestCase
         $job = $this->worker->reserve();
         $job->worker = $this->worker;
 
-		$this->expectException(ResqueException::class);
+        $this->expectException(ResqueException::class);
 
         $job->perform();
     }
@@ -163,7 +163,7 @@ class JobHandlerTest extends ResqueTestCase
         $job = $this->worker->reserve();
         $job->worker = $this->worker;
 
-		$this->expectException(ResqueException::class);
+        $this->expectException(ResqueException::class);
 
         $job->perform();
     }
@@ -462,20 +462,41 @@ class JobHandlerTest extends ResqueTestCase
 class Some_Job_Class implements JobInterface
 {
     /**
-     * @return bool
+     * @var array<string, mixed>|null
      */
-    public function perform()
+    protected array|null $args = null;
+
+    protected JobHandler|null $job = null;
+
+    protected null|string $queue = null;
+
+    public function perform(): bool
     {
         return true;
+    }
+
+    public function setArgs(array|null $args): void
+    {
+        $this->args = $args;
+    }
+
+    public function setJobHandler(JobHandler $jobHandler): void
+    {
+        $this->job = $jobHandler;
+    }
+
+    public function setQueue(string $queue): void
+    {
+        $this->queue = $queue;
     }
 }
 
 class Some_Stub_Factory implements FactoryInterface
 {
     /**
-     * @param $className
-     * @param array $args
-     * @param $queue
+     * @param class-string<JobInterface> $className
+     * @param array<string, mixed> $args
+     * @param string $queue
      * @return \Resque\Job\JobInterface
      */
     public function create($className, $args, $queue)

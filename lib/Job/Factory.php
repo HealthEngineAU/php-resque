@@ -7,9 +7,9 @@ use Resque\Exceptions\ResqueException;
 class Factory implements FactoryInterface
 {
     /**
-     * @param $className
-     * @param array $args
-     * @param $queue
+     * @param class-string<JobInterface> $className
+     * @param array<string, mixed>|null $args
+     * @param string $queue
      * @return \Resque\Job\JobInterface
      * @throws \Resque\Exceptions\ResqueException
      */
@@ -21,15 +21,9 @@ class Factory implements FactoryInterface
             );
         }
 
-        if (!method_exists($className, 'perform')) {
-            throw new ResqueException(
-                'Job class ' . $className . ' does not contain a perform method.'
-            );
-        }
-
         $instance = new $className();
-        $instance->args = $args;
-        $instance->queue = $queue;
+        $instance->setArgs($args);
+        $instance->setQueue($queue);
         return $instance;
     }
 }

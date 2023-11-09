@@ -6,7 +6,7 @@ use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
 
 return (new Config())
-	->setFinder(Finder::create()->in(__DIR__))
+	->setFinder(Finder::create()->in(__DIR__)->name(['resque', 'resque-scheduler']))
 	->setRules([
 		'@PER' => true,
 	]);

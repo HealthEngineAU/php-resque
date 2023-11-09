@@ -3,6 +3,7 @@
 namespace Resque;
 
 use Resque\Exceptions\RedisException;
+use Resque\Job\JobInterface;
 use RuntimeException;
 use Resque\Exceptions\DoNotCreateException;
 
@@ -20,13 +21,13 @@ class Resque
     public const DEFAULT_INTERVAL = 5;
 
     /**
-     * @var Redis Instance of Resque\Redis that talks to redis.
+     * @var Redis|null Instance of Resque\Redis that talks to redis.
      */
     public static $redis = null;
 
     /**
-     * @var mixed Host/port conbination separated by a colon, or a nested
-     * array of server swith host/port pairs
+     * @var null|string|string[] Host/port combination separated by a colon, or a nested
+     * array of servers with host/port pairs
      */
     protected static $redisServer = null;
 
@@ -36,7 +37,7 @@ class Resque
     protected static $redisDatabase = 0;
 
     /**
-     * @var string auth of Redis database
+     * @var string|null auth of Redis database
      */
     protected static $auth;
 
@@ -44,14 +45,14 @@ class Resque
      * Given a host/port combination separated by a colon, set it as
      * the redis server that Resque will talk to.
      *
-     * @param mixed $server Host/port combination separated by a colon, DSN-formatted URI, or
+     * @param string|string[] $server Host/port combination separated by a colon, DSN-formatted URI, or
      *                      a callable that receives the configured database ID
      *                      and returns a Resque\Redis instance, or
      *                      a nested array of servers with host/port pairs.
      * @param int $database
-     * @param string $auth
+     * @param string|null $auth
      */
-    public static function setBackend($server, $database = 0, $auth = null)
+    public static function setBackend($server, $database = 0, $auth = null): void
     {
         self::$redisServer   = $server;
         self::$redisDatabase = $database;
@@ -70,13 +71,19 @@ class Resque
             return self::$redis;
         }
 
+        if (self::$redisServer === null) {
+            throw new RuntimeException(
+                'Redis server(s) not configured. Did you forget to call Redis::setBackend()?'
+            );
+        }
+
         if (is_callable(self::$redisServer)) {
             self::$redis = call_user_func(self::$redisServer, self::$redisDatabase);
         } else {
             self::$redis = new Redis(self::$redisServer, self::$redisDatabase);
         }
 
-        if (!empty(self::$auth)) {
+        if (is_string(self::$auth) && trim(self::$auth) !== '') {
             self::$redis->auth(self::$auth);
         }
 
@@ -90,7 +97,7 @@ class Resque
      *
      * Will close connection to Redis before forking.
      *
-     * @return int Return vars as per pcntl_fork(). False if pcntl_fork is unavailable
+     * @return false|int Return vars as per pcntl_fork(). False if pcntl_fork is unavailable
      */
     public static function fork()
     {
@@ -115,15 +122,20 @@ class Resque
      * exist, then create it as well.
      *
      * @param string $queue The name of the queue to add the job to.
-     * @param array $item Job description as an array to be JSON encoded.
-	 * @throws RedisException
+     * @param array{
+     *     args: array{
+     *         0: array<string, mixed>|null
+     *     },
+     *     class: class-string,
+     *     id: string,
+     *     prefix: string,
+     *     queue_time: float
+     * } $item Job description as an array to be JSON encoded.
+     * @throws RedisException
      */
-    public static function push($queue, $item)
+    public static function push($queue, $item): bool
     {
-        $encodedItem = json_encode($item);
-        if ($encodedItem === false) {
-            return false;
-        }
+        $encodedItem = json_encode($item, JSON_THROW_ON_ERROR);
         self::redis()->sadd('queues', $queue);
         $length = self::redis()->rpush('queue:' . $queue, $encodedItem);
         if ($length < 1) {
@@ -137,24 +149,40 @@ class Resque
      * return it.
      *
      * @param string $queue The name of the queue to fetch an item from.
-     * @return array|null Decoded item from the queue.
+     * @return array{
+     *     args?: array{
+     *         0?: array<string, mixed>|null
+     *     },
+     *     class: class-string<JobInterface>,
+     *     queue: string
+     * }|null Decoded item from the queue.
+     * @throws \JsonException
      */
     public static function pop($queue)
     {
         $item = self::redis()->lpop('queue:' . $queue);
 
-        if (!$item) {
+        if (!is_string($item)) {
             return null;
         }
 
-        return json_decode($item, true);
+        /**
+         * @var array{
+         *      args?: array{
+         *          0?: array<string, mixed>|null
+         *      },
+         *      class: class-string<JobInterface>,
+         *      queue: string
+         *  }
+         */
+        return json_decode($item, true, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
      * Remove items of the specified queue
      *
      * @param string $queue The name of the queue to fetch an item from.
-     * @param array $items
+     * @param array<int|string, mixed> $items
      * @return integer number of deleted items
      */
     public static function dequeue($queue, $items = array())
@@ -183,9 +211,9 @@ class Resque
      * Pop an item off the end of the specified queues, using blocking list pop,
      * decode it and return it.
      *
-     * @param array         $queues
-     * @param int           $timeout
-     * @return null|array   Decoded item from the queue.
+     * @param   string[]  $queues
+     * @param   int|null  $timeout
+     * @return  null|array{ payload: mixed, queue: string }  Decoded item from the queue.
      */
     public static function blpop(array $queues, $timeout)
     {
@@ -194,10 +222,11 @@ class Resque
             $list[] = 'queue:' . $queue;
         }
 
+        /** @var array{ 0: string, 1: string }|false $item */
         $item = self::redis()->blpop($list, (int)$timeout);
 
-        if (!$item) {
-            return;
+        if (!is_array($item)) {
+            return null;
         }
 
         /**
@@ -205,8 +234,9 @@ class Resque
          * But the blpop is a bit different. It returns the name as prefix:queue:name
          * So we need to strip off the prefix:queue: part
          */
-        $queue = substr($item[0], strlen(self::redis()->getPrefix() . 'queue:'));
+        $queue = substr($item[0], strlen(Redis::getPrefix() . 'queue:'));
 
+        /** @var array{ payload: array<string, mixed>, queue: string } */
         return array(
         'queue'   => $queue,
         'payload' => json_decode($item[1], true)
@@ -222,19 +252,31 @@ class Resque
      */
     public static function size($queue)
     {
-        return self::redis()->llen('queue:' . $queue);
+        $listLength = self::redis()->llen('queue:' . $queue);
+
+        if ($listLength === false) {
+            return 0;
+        }
+
+        if (!is_int($listLength)) {
+            throw new \UnexpectedValueException(
+                'Did not expect list length to be of type: ' . gettype($listLength)
+            );
+        }
+
+        return $listLength;
     }
 
     /**
      * Create a new job and save it to the specified queue.
      *
      * @param string $queue The name of the queue to place the job in.
-     * @param string $class The name of the class that contains the code to execute the job.
-     * @param array $args Any optional arguments that should be passed when the job is executed.
+     * @param class-string<JobInterface> $class The name of the class that contains the code to execute the job.
+     * @param array<string, mixed> $args Any optional arguments that should be passed when the job is executed.
      * @param boolean $trackStatus Set to true to be able to monitor the status of a job.
      * @param string $prefix The prefix needs to be set for the status key
      *
-     * @return string|boolean Job ID when the job was created, false if creation was cancelled due to beforeEnqueue
+     * @return false|string Job ID when the job was created, false if creation was cancelled due to beforeEnqueue
      */
     public static function enqueue($queue, $class, $args = null, $trackStatus = false, $prefix = "")
     {
@@ -261,7 +303,7 @@ class Resque
      * Reserve and return the next available job in the specified queue.
      *
      * @param string $queue Queue to fetch next available job from.
-     * @return \Resque\JobHandler Instance of Resque\JobHandler to be processed, false if none or error.
+     * @return false|JobHandler Instance of Resque\JobHandler to be processed, false if none or error.
      */
     public static function reserve($queue)
     {
@@ -271,23 +313,25 @@ class Resque
     /**
      * Get an array of all known queues.
      *
-     * @return array Array of queues.
+     * @return string[] Array of queues.
      */
     public static function queues()
     {
         $queues = self::redis()->smembers('queues');
+
         if (!is_array($queues)) {
             $queues = array();
         }
+
         return $queues;
     }
 
     /**
      * Retrieve all the items of a queue with Redis
      *
-     * @return array Array of items.
+     * @return string[] Array of items.
      */
-    public static function items($queue, $start = 0, $stop = -1)
+    public static function items(string $queue, int $start = 0, int $stop = -1): array
     {
         $list = self::redis()->lrange('queue:' . $queue, $start, $stop);
         if (!is_array($list)) {
@@ -305,7 +349,7 @@ class Resque
      * @private
      *
      * @param string $queue The name of the queue
-     * @param array $items
+     * @param array<int|string, mixed> $items
      * @return integer number of deleted items
      */
     private static function removeItems($queue, $items = array())
@@ -318,14 +362,14 @@ class Resque
         // move each item from original queue to temp queue and process it
         $finished = false;
         while (!$finished) {
-            $string = self::redis()->rpoplpush($originalQueue, self::redis()->getPrefix() . $tempQueue);
+            $string = self::redis()->rpoplpush($originalQueue, Redis::getPrefix() . $tempQueue);
 
-            if (!empty($string)) {
+            if (is_string($string) && trim($string) !== '') {
                 if (self::matchItem($string, $items)) {
                     self::redis()->rpop($tempQueue);
                     $counter++;
                 } else {
-                    self::redis()->rpoplpush($tempQueue, self::redis()->getPrefix() . $requeueQueue);
+                    self::redis()->rpoplpush($tempQueue, Redis::getPrefix() . $requeueQueue);
                 }
             } else {
                 $finished = true;
@@ -335,8 +379,8 @@ class Resque
         // move back from temp queue to original queue
         $finished = false;
         while (!$finished) {
-            $string = self::redis()->rpoplpush($requeueQueue, self::redis()->getPrefix() . $originalQueue);
-            if (empty($string)) {
+            $string = self::redis()->rpoplpush($requeueQueue, Redis::getPrefix() . $originalQueue);
+            if (!is_string($string) || trim($string) === '') {
                 $finished = true;
             }
         }
@@ -353,14 +397,20 @@ class Resque
      * item can be ['class'] or ['class' => 'id'] or ['class' => {'foo' => 1, 'bar' => 2}]
      * @private
      *
-     * @params string $string redis result in json
-     * @params $items
+     * @param string $string redis result in json
+     * @param array<int|string, mixed> $items
      *
-     * @return (bool)
+     * @return bool
      */
     private static function matchItem($string, $items)
     {
         $decoded = json_decode($string, true);
+
+        if (!is_array($decoded)) {
+            throw new \UnexpectedValueException(
+                'Did not expect JSON decoded item to be of type: ' . gettype($decoded)
+            );
+        }
 
         foreach ($items as $key => $val) {
             # class name only  ex: item[0] = ['class']
@@ -392,7 +442,7 @@ class Resque
      *
      * @private
      *
-     * @params string $queue the name of the queue
+     * @param string $queue the name of the queue
      * @return integer number of deleted items belongs to this list
      */
     private static function removeList($queue)
@@ -402,7 +452,7 @@ class Resque
         return ($result == 1) ? $counter : 0;
     }
 
-    /*
+    /**
      * Generate an identifier to attach to a job for status tracking.
      *
      * @return string

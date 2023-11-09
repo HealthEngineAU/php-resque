@@ -19,7 +19,10 @@ class Stat
      */
     public static function get($stat)
     {
-        return (int)Resque::redis()->get('stat:' . $stat);
+        /** @var string $result */
+        $result = Resque::redis()->get('stat:' . $stat);
+
+        return (int)$result;
     }
 
     /**

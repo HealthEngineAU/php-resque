@@ -2,15 +2,64 @@
 
 namespace Resque;
 
+use Redis as PhpRedis;
 use Resque\Exceptions\RedisException;
 use InvalidArgumentException;
 
 /**
- * Wrap Credis to add namespace support and various helper methods.
+ * Wrap {@see PhpRedis} to add namespace support and various helper methods.
  *
  * @package		Resque/Redis
  * @author		Chris Boulton <chris@bigcommerce.com>
  * @license		http://www.opensource.org/licenses/mit-license.php
+ *
+ * @method  array|false|null|PhpRedis    blpop(string|string[] $key_or_keys, float|int|string $timeout_or_key, mixed ...$extra_args)
+ * @method  false|int|PhpRedis           decrby(string $key, int $value)
+ * @method  false|int|PhpRedis           del(string $key, string ...$otherKeys)
+ *
+ * @method  bool|int|PhpRedis            exists(string $key, string ...$other_keys)
+ * @see     \Redis::exists()
+ *
+ * @method  bool|PhpRedis                expire(string $key, int $ttl, null|string $mode = null)
+ * @see     \Redis::expire()
+ *
+ * @method  string|mixed|false|PhpRedis  get(string $key)
+ * @method  false|int|PhpRedis           incrby(string $key, int $value)
+ * @method  false|PhpRedis|string[]      keys(string $pattern)
+ *
+ * @method  false|int|PhpRedis            llen(string $key)
+ * @see     \Redis::lLen()
+ *
+ * @method  bool|mixed|PhpRedis          lpop(string $key, int $count = 0)
+ *
+ * @method  array|PhpRedis               lrange(string $key, int $start, int $end)
+ * @see     \Redis::lRange()
+ *
+ * @method  bool|int|PhpRedis            lrem(string $key, mixed $value, int $count = 0)
+ * @method  bool|string                  ping(null|string $message = null)
+ *
+ * @method  mixed|array|string|bool|PhpRedis  rpop(string $key, int $count = 0)
+ * @see \Redis::rPop()
+ *
+ * @method  false|mixed|string|PhpRedis  rpoplpush(string $srcKey, string $dstKey)
+ * @see \Redis::rPopLPush()
+ *
+ * @method  int|false|PhpRedis           rpush(string $key, mixed $value, mixed ...$otherValues)
+ * @method  int|false|PhpRedis           sadd(string $key, mixed $value, mixed ...$otherValues)
+ * @method  int|false|PhpRedis           set(string $key, mixed $value, mixed $options = null)
+ * @method  bool|PhpRedis                sismember(string $key, mixed $value)
+ * @method  int|false|PhpRedis           srem(string $key, mixed $value, mixed ...$otherValues)
+ *
+ * @method  false|PhpRedis|string[]      smembers(string $key)
+ * @see     \Redis::sMembers()
+ *
+ * @method  false|int|PhpRedis           zadd(string $key, array|float $score_or_options, mixed ...$more_scores_and_mems)
+ *
+ * @method  false|int|PhpRedis           zcard(string $key)
+ * @see \Redis::zCard()
+ *
+ * @method  array|false|PhpRedis         zrangebyscore(string $key, string $start, string $end, array $options = [])
+ * @method  array|false|PhpRedis         zrem(string $key, mixed $member1, mixed ...$otherMembers)
  */
 class Redis
 {
@@ -37,12 +86,12 @@ class Redis
 
     /**
      * Connection driver
-     * @var mixed
+     * @var \Redis|\RedisCluster
      */
     private $driver;
 
     /**
-     * @var array List of all commands in Redis that supply a key as their
+     * @var string[] List of all commands in Redis that supply a key as their
      *	first argument. Used to prefix keys with the Resque namespace.
      */
     private $keyCommands = array(
@@ -108,7 +157,7 @@ class Redis
      * Set Redis namespace (prefix) default: resque
      * @param string $namespace
      */
-    public static function prefix($namespace)
+    public static function prefix($namespace): void
     {
         if (substr($namespace, -1) !== ':' && $namespace != '') {
             $namespace .= ':';
@@ -117,10 +166,10 @@ class Redis
     }
 
     /**
-     * @param string|array $server A DSN or array
-     * @param int $database A database number to select. However, if we find a valid database number in the DSN the
+     * @param \Redis|\RedisCluster|string|string[] $server A DSN or array
+     * @param int|null $database A database number to select. However, if we find a valid database number in the DSN the
      *                      DSN-supplied value will be used instead and this parameter is ignored.
-     * @param object $client Optional \RedisCluster or \Redis instance instantiated by you
+     * @param null|\Redis|\RedisCluster $client Optional \RedisCluster or \Redis instance instantiated by you
      */
     public function __construct($server, $database = null, $client = null)
     {
@@ -130,7 +179,9 @@ class Redis
             } elseif (is_object($server)) {
                 $this->driver = $server;
             } elseif (is_array($server)) {
-                $this->driver = new \RedisCluster(null, $server);
+                $redisCluster = new \RedisCluster(null, $server);
+
+                $this->driver = $redisCluster;
             } else {
                 list($host, $port, $dsnDatabase, $user, $password, $options) = self::parseDsn($server);
                 // $user is not used, only $password
@@ -139,36 +190,44 @@ class Redis
                 $persistent = isset($options['persistent']) ? $options['persistent'] : '';
                 $maxRetries = isset($options['max_connect_retries']) ? $options['max_connect_retries'] : 0;
 
-				$redis = new \Redis();
-				$try = 0;
-				$connected = false;
-				$lastRedisException = null;
+                $redis = new \Redis();
+                $try = 0;
+                $connected = false;
+                $lastRedisException = null;
 
-				while (!$connected && $try <= $maxRetries) {
-					$try += 1;
+                while (!$connected && $try <= $maxRetries) {
+                    $try += 1;
 
-					try {
-						if ($persistent !== '') {
-							$connected = $redis->pconnect($host, $port, $timeout, $persistent);
-						} else {
-							$connected = $redis->connect($host, $port, $timeout);
-						}
-					} catch (\RedisException $redisException) {
-						$lastRedisException = $redisException;
-					}
-				}
+                    try {
+                        if ($persistent !== '') {
+                            $connected = $redis->pconnect(
+                                $host,
+                                is_int($port) ? $port : self::DEFAULT_PORT,
+                                (int)$timeout,
+                                $persistent
+                            );
+                        } else {
+                            $connected = $redis->connect(
+                                $host,
+                                is_int($port) ? $port : self::DEFAULT_PORT,
+                                (int)$timeout
+                            );
+                        }
+                    } catch (\RedisException $redisException) {
+                        $lastRedisException = $redisException;
+                    }
+                }
 
-				if (!$connected) {
-					if ($lastRedisException instanceof \RedisException) {
-						throw $lastRedisException;
-					} else {
-						throw new \Exception('Failed to connect to redis after exhausting all retries');
-					}
-				}
+                if (!$connected) {
+                    if ($lastRedisException instanceof \RedisException) {
+                        throw $lastRedisException;
+                    } else {
+                        throw new \Exception('Failed to connect to redis after exhausting all retries');
+                    }
+                }
 
-                $this->driver = $redis;
-                if ($password) {
-                    $this->driver->auth($password);
+                if (is_string($password) && trim($password) !== '') {
+                    $redis->auth($password);
                 }
 
                 // If we have found a database in our DSN, use it instead of the `$database`
@@ -176,10 +235,12 @@ class Redis
                 if ($dsnDatabase !== false) {
                     $database = $dsnDatabase;
                 }
-            }
 
-            if ($database !== null) {
-                $this->driver->select($database);
+                if ($database !== null) {
+                    $redis->select($database);
+                }
+
+                $this->driver = $redis;
             }
         } catch (\RedisException $e) {
             throw new RedisException('Error communicating with Redis: ' . $e->getMessage(), 0, $e);
@@ -197,7 +258,14 @@ class Redis
      * Note: the 'user' part of the DSN is not used.
      *
      * @param string $dsn A DSN string
-     * @return array An array of DSN compotnents, with 'false' values for any unknown components. e.g.
+     * @return array{
+     *     0: string,
+     *     1: int|null,
+     *     2: false|int,
+     *     3: false|null|string,
+     *     4: false|null|string,
+     *     5: array<string, string>|null
+     * } An array of DSN components, with `false` values for any unknown components. e.g.
      *               [host, port, db, user, pass, options]
      */
     public static function parseDsn($dsn)
@@ -220,7 +288,7 @@ class Redis
 
         // Check the URI scheme
         $validSchemes = array('redis', 'tcp');
-        if (isset($parts['scheme']) && !in_array($parts['scheme'], $validSchemes)) {
+        if (isset($parts['scheme']) && !in_array($parts['scheme'], $validSchemes, true)) {
             throw new InvalidArgumentException("Invalid DSN. Supported schemes are " . implode(', ', $validSchemes));
         }
 
@@ -241,29 +309,31 @@ class Redis
         }
 
         // Extract any 'user' values
-        $user = isset($parts['user']) ? $parts['user'] : false;
+        $user = $parts['user'] ?? false;
 
         // Convert the query string into an associative array
         $options = array();
         if (isset($parts['query'])) {
             // Parse the query string into an array
             parse_str($parts['query'], $options);
+
+            /** @var array<string, string> $options */
         }
 
         //check 'password-encoding' parameter and extracting password based on encoding
-        if ($options && isset($options['password-encoding']) && $options['password-encoding'] === 'u') {
+        if (count($options) > 0 && isset($options['password-encoding']) && $options['password-encoding'] === 'u') {
             //extracting urlencoded password
             $pass = isset($parts['pass']) ? urldecode($parts['pass']) : false;
-        } elseif ($options && isset($options['password-encoding']) && $options['password-encoding'] === 'b') {
+        } elseif (count($options) > 0 && isset($options['password-encoding']) && $options['password-encoding'] === 'b') {
             //extracting base64 encoded password
-            $pass = isset($parts['pass']) ? base64_decode($parts['pass']) : false;
+            $pass = isset($parts['pass']) ? base64_decode($parts['pass'], true) : false;
         } else {
             //extracting pass directly since 'password-encoding' parameter is not present
-            $pass = isset($parts['pass']) ? $parts['pass'] : false;
+            $pass = $parts['pass'] ?? false;
         }
 
         return array(
-            $parts['host'],
+            $parts['host'] ?? self::DEFAULT_HOST,
             $port,
             $database,
             $user,
@@ -277,12 +347,12 @@ class Redis
      * operations with the {self::$defaultNamespace} key prefix.
      *
      * @param string $name The name of the method called.
-     * @param array $args Array of supplied arguments to the method.
+     * @param mixed[] $args Array of supplied arguments to the method.
      * @return mixed Return value from Resident::call() based on the command.
      */
     public function __call($name, $args)
     {
-        if (in_array($name, $this->keyCommands)) {
+        if (in_array($name, $this->keyCommands, true)) {
             if (is_array($args[0])) {
                 foreach ($args[0] as $i => $v) {
                     $args[0][$i] = self::$defaultNamespace . $v;
@@ -292,18 +362,18 @@ class Redis
             }
         }
         try {
-			return $this->driver->{$name}(...$args);
+            return $this->driver->{$name}(...$args);
         } catch (\RedisException $e) {
             throw new RedisException('Error communicating with Redis: ' . $e->getMessage(), 0, $e);
         }
     }
 
-    public static function getPrefix()
+    public static function getPrefix(): string
     {
         return self::$defaultNamespace;
     }
 
-    public static function removePrefix($string)
+    public static function removePrefix(string $string): string
     {
         $prefix = self::getPrefix();
 

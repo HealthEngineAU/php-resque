@@ -18,7 +18,7 @@ class PID
      *
      * @param string $id The ID of the job to track the PID of.
      */
-    public static function create($id)
+    public static function create($id): void
     {
         Resque::redis()->set('job:' . $id . ':pid', (string)getmypid());
     }
@@ -32,7 +32,17 @@ class PID
      */
     public static function get($id)
     {
-        return (int)Resque::redis()->get('job:' . $id . ':pid');
+        $pid = Resque::redis()->get('job:' . $id . ':pid');
+
+		if ($pid === false) {
+			return 0;
+		}
+
+        if (!is_string($pid)) {
+            throw new \UnexpectedValueException('Did not expect PID to be of type: ' . gettype($pid));
+        }
+
+        return (int)$pid;
     }
 
     /**
@@ -40,7 +50,7 @@ class PID
      *
      * @param string $id The ID of the job to remove the tracker from.
      */
-    public static function del($id)
+    public static function del($id): void
     {
         Resque::redis()->del('job:' . $id . ':pid');
     }

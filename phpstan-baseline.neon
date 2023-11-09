@@ -1,0 +1,16 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Parameter \\#3 \\$context \\(array\\<string, string\\>\\) of method Resque\\\\Logger\\:\\:log\\(\\) should be contravariant with parameter \\$context \\(array\\) of method Psr\\\\Log\\\\AbstractLogger\\:\\:log\\(\\)$#"
+			count: 1
+			path: lib/Logger.php
+
+		-
+			message: "#^Parameter \\#3 \\$context \\(array\\<string, string\\>\\) of method Resque\\\\Logger\\:\\:log\\(\\) should be contravariant with parameter \\$context \\(array\\) of method Psr\\\\Log\\\\LoggerInterface\\:\\:log\\(\\)$#"
+			count: 1
+			path: lib/Logger.php
+
+		-
+			message: "#^Variable method call on Redis\\|RedisCluster\\.$#"
+			count: 1
+			path: lib/Redis.php

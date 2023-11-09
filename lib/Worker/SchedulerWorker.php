@@ -49,7 +49,7 @@ class SchedulerWorker
      * that should be pushed to Resque.
      *
      * @param int|null $interval How often to check schedules.
-	 * @return void
+     * @return void
      */
     public function work($interval = null): void
     {
@@ -97,8 +97,7 @@ class SchedulerWorker
      */
     public function enqueueDelayedItemsForTimestamp($timestamp): void
     {
-        $item = null;
-        while ($item = Scheduler::nextItemForTimestamp($timestamp)) {
+        while (($item = Scheduler::nextItemForTimestamp($timestamp)) !== false) {
             $this->log('queueing ' . $item['class'] . ' in ' . $item['queue'] . ' [delayed]');
 
             Event::trigger('beforeDelayedEnqueue', array(

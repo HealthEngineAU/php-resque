@@ -19,7 +19,7 @@ class ResqueTestCase extends TestCase
     protected $resque;
     protected $redis;
     protected $logger;
-	protected TestHandler $loggerHandler;
+    protected TestHandler $loggerHandler;
 
     public static function setUpBeforeClass(): void
     {
@@ -32,7 +32,7 @@ class ResqueTestCase extends TestCase
         preg_match('#^\s*port\s+([0-9]+)#m', $config, $matches);
 
         $this->redis = new Redis();
-		$this->redis->connect('localhost', $matches[1]);
+        $this->redis->connect('localhost', $matches[1]);
 
         $this->logger = $this->getMockBuilder('Psr\Log\LoggerInterface')
                              ->getMock();

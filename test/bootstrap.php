@@ -7,6 +7,9 @@
  * @license		http://www.opensource.org/licenses/mit-license.php
  */
 
+use Resque\Job\JobInterface;
+use Resque\JobHandler;
+
 $loader = require __DIR__ . '/../vendor/autoload.php';
 
 define('TEST_MISC', realpath(__DIR__ . '/misc/'));
@@ -111,40 +114,100 @@ class Failing_Job
  *
  * CAUTION Use this test job only with Worker::work, i.e. only when you actually trigger the fork in tests.
  */
-class InProgress_Job
+class InProgress_Job implements JobInterface
 {
-    public function perform()
+	protected array|null $args = null;
+	protected JobHandler|null $job = null;
+	protected null|string $queue = null;
+
+    public function perform(): bool
     {
-        if(!function_exists('pcntl_fork')) {
+        if (!function_exists('pcntl_fork')) {
             // We can't lose the worker on a non-forking OS.
             throw new Failing_Job_Exception('Do not use InProgress_Job for tests on non-forking OS!');
         }
-        exit(0);
+
+		return true;
     }
+
+	public function setArgs(?array $args): void
+	{
+		$this->args = $args;
+	}
+
+	public function setJobHandler(JobHandler $jobHandler): void
+	{
+		$this->job = $jobHandler;
+	}
+
+	public function setQueue(string $queue): void
+	{
+		$this->queue = $queue;
+	}
 }
 
 class Test_Job_Without_Perform_Method {}
 
-class Test_Job_With_SetUp
+class Test_Job_With_SetUp implements JobInterface
 {
     public static $called = false;
-    public $args = false;
+	protected array|null $args = null;
+	protected JobHandler|null $job = null;
+	protected null|string $queue = null;
 
     public function setUp()
     {
         self::$called = true;
     }
 
-    public function perform() {}
+    public function perform(): bool
+	{
+		return true;
+	}
+
+	public function setArgs(?array $args): void
+	{
+		$this->args = $args;
+	}
+
+	public function setJobHandler(JobHandler $jobHandler): void
+	{
+		$this->job = $jobHandler;
+	}
+
+	public function setQueue(string $queue): void
+	{
+		$this->queue = $queue;
+	}
 }
 
 
-class Test_Job_With_TearDown
+class Test_Job_With_TearDown implements JobInterface
 {
     public static $called = false;
-    public $args = false;
+	protected array|null $args = null;
+	protected JobHandler|null $job = null;
+	protected null|string $queue = null;
 
-    public function perform() {}
+    public function perform(): bool
+	{
+		return true;
+	}
+
+	public function setArgs(?array $args): void
+	{
+		$this->args = $args;
+	}
+
+	public function setJobHandler(JobHandler $jobHandler): void
+	{
+		$this->job = $jobHandler;
+	}
+
+	public function setQueue(string $queue): void
+	{
+		$this->queue = $queue;
+	}
 
     public function tearDown()
     {
@@ -152,10 +215,29 @@ class Test_Job_With_TearDown
     }
 }
 
-class Test_Infinite_Recursion_Job
+class Test_Infinite_Recursion_Job implements JobInterface
 {
-    public function perform()
+	protected array|null $args = null;
+	protected JobHandler|null $job = null;
+	protected null|string $queue = null;
+
+    public function perform(): bool
     {
         $this->perform();
     }
+
+	public function setArgs(?array $args): void
+	{
+		$this->args = $args;
+	}
+
+	public function setJobHandler(JobHandler $jobHandler): void
+	{
+		$this->job = $jobHandler;
+	}
+
+	public function setQueue(string $queue): void
+	{
+		$this->queue = $queue;
+	}
 }

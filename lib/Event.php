@@ -12,7 +12,7 @@ namespace Resque;
 class Event
 {
     /**
-     * @var array Array containing all registered callbacks, indexked by event name.
+     * @var array<string, array<int, mixed>> Array containing all registered callbacks, indexed by event name.
      */
     private static $events = array();
 
@@ -29,7 +29,7 @@ class Event
             $data = array($data);
         }
 
-        if (empty(self::$events[$event])) {
+        if (!array_key_exists($event, self::$events)) {
             return true;
         }
 
@@ -73,7 +73,7 @@ class Event
             return true;
         }
 
-        $key = array_search($callback, self::$events[$event]);
+        $key = array_search($callback, self::$events[$event], true);
         if ($key !== false) {
             unset(self::$events[$event][$key]);
         }
@@ -84,7 +84,7 @@ class Event
     /**
      * Call all registered listeners.
      */
-    public static function clearListeners()
+    public static function clearListeners(): void
     {
         self::$events = array();
     }
