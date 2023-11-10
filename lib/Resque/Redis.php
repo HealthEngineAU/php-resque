@@ -129,7 +129,7 @@ class Resque_Redis
                 // $user is not used, only $password
 
                 // Look for known Redis options
-                $timeout = isset($options['timeout']) ? intval($options['timeout']) : null;
+                $timeout = isset($options['timeout']) ? floatval($options['timeout']) : null;
                 $persistent = isset($options['persistent']) ? $options['persistent'] : '';
                 $maxRetries = isset($options['max_connect_retries']) ? $options['max_connect_retries'] : 0;
 
@@ -143,9 +143,9 @@ class Resque_Redis
 
                     try {
                         if (is_string($persistent) && trim($persistent) !== '') {
-                            $connected = $redis->pconnect($host, $port, $timeout, $persistent);
+                            $connected = $redis->pconnect($host, $port, $timeout ?? 0.0, $persistent);
                         } else {
-                            $connected = $redis->connect($host, $port, $timeout);
+                            $connected = $redis->connect($host, $port, $timeout ?? 0.0);
                         }
                     } catch (\RedisException $e) {
                         $lastException = $e;
