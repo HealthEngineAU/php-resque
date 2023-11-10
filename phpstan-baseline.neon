@@ -1,0 +1,1331 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Access to an undefined property Resque_Worker\\:\\:\\$logLevel\\.$#"
+			count: 2
+			path: bin/resque
+
+		-
+			message: "#^Call to an undefined method object\\:\\:log\\(\\)\\.$#"
+			count: 4
+			path: bin/resque
+
+		-
+			message: "#^Call to function in_array\\(\\) requires parameter \\#3 to be set\\.$#"
+			count: 2
+			path: bin/resque
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 9
+			path: bin/resque
+
+		-
+			message: "#^Function cleanup_children\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: bin/resque
+
+		-
+			message: "#^Function cleanup_children\\(\\) has parameter \\$signal with no type specified\\.$#"
+			count: 1
+			path: bin/resque
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, int\\<min, \\-2\\>\\|int\\<0, max\\> given\\.$#"
+			count: 1
+			path: bin/resque
+
+		-
+			message: "#^Only booleans are allowed in an if condition, string\\|false given\\.$#"
+			count: 3
+			path: bin/resque
+
+		-
+			message: "#^Parameter \\#1 \\$interval of method Resque_Worker\\:\\:work\\(\\) expects int, int\\|string given\\.$#"
+			count: 2
+			path: bin/resque
+
+		-
+			message: "#^Parameter \\#2 \\$database of static method Resque\\:\\:setBackend\\(\\) expects int, string given\\.$#"
+			count: 1
+			path: bin/resque
+
+		-
+			message: "#^Strict comparison using \\!\\=\\= between false and false will always evaluate to false\\.$#"
+			count: 1
+			path: bin/resque
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 7
+			path: bin/resque-scheduler
+
+		-
+			message: "#^Only booleans are allowed in an if condition, string\\|false given\\.$#"
+			count: 2
+			path: bin/resque-scheduler
+
+		-
+			message: "#^Only booleans are allowed in \\|\\|, int\\<0, max\\>\\|false given on the left side\\.$#"
+			count: 1
+			path: bin/resque-scheduler
+
+		-
+			message: "#^Parameter \\#1 \\$interval of method ResqueScheduler_Worker\\:\\:work\\(\\) expects int\\|null, int\\|string given\\.$#"
+			count: 1
+			path: bin/resque-scheduler
+
+		-
+			message: "#^Parameter \\#2 \\$database of static method Resque\\:\\:setBackend\\(\\) expects int, string given\\.$#"
+			count: 1
+			path: bin/resque-scheduler
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:blpop\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:del\\(\\)\\.$#"
+			count: 3
+			path: lib/Resque.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:llen\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:lpop\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:lrange\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:rpop\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:rpoplpush\\(\\)\\.$#"
+			count: 3
+			path: lib/Resque.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:rpush\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:sadd\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:smembers\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:srem\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Cannot access offset 'args' on mixed\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Cannot access offset 'class' on mixed\\.$#"
+			count: 3
+			path: lib/Resque.php
+
+		-
+			message: "#^Cannot access offset 'id' on mixed\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Cannot access offset 0 on mixed\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Casting to int something that's already int\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 3
+			path: lib/Resque.php
+
+		-
+			message: "#^Dynamic call to static method Resque_Redis\\:\\:getPrefix\\(\\)\\.$#"
+			count: 4
+			path: lib/Resque.php
+
+		-
+			message: "#^Method Resque\\:\\:blpop\\(\\) has parameter \\$queues with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Method Resque\\:\\:blpop\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Method Resque\\:\\:blpop\\(\\) should return array\\|null but empty return statement found\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Method Resque\\:\\:dequeue\\(\\) has parameter \\$items with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Method Resque\\:\\:enqueue\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Method Resque\\:\\:fork\\(\\) should return int but returns false\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Method Resque\\:\\:generateJobId\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Method Resque\\:\\:items\\(\\) has parameter \\$queue with no type specified\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Method Resque\\:\\:items\\(\\) has parameter \\$start with no type specified\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Method Resque\\:\\:items\\(\\) has parameter \\$stop with no type specified\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Method Resque\\:\\:items\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Method Resque\\:\\:matchItem\\(\\) has parameter \\$items with no type specified\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Method Resque\\:\\:matchItem\\(\\) has parameter \\$string with no type specified\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Method Resque\\:\\:pop\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Method Resque\\:\\:pop\\(\\) should return array but empty return statement found\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Method Resque\\:\\:pop\\(\\) should return array but returns mixed\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Method Resque\\:\\:push\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Method Resque\\:\\:push\\(\\) has parameter \\$item with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Method Resque\\:\\:queues\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Method Resque\\:\\:removeItems\\(\\) has parameter \\$items with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Method Resque\\:\\:removeList\\(\\) has parameter \\$queue with no type specified\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Method Resque\\:\\:reserve\\(\\) should return Resque_Job but returns object\\|false\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Method Resque\\:\\:setBackend\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Parameter \\#1 \\$server of class Resque_Redis constructor expects array\\|string, mixed given\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Static property Resque\\:\\:\\$auth \\(string\\) does not accept string\\|null\\.$#"
+			count: 1
+			path: lib/Resque.php
+
+		-
+			message: "#^Static property Resque\\:\\:\\$redis \\(Resque_Redis\\) does not accept null\\.$#"
+			count: 2
+			path: lib/Resque.php
+
+		-
+			message: "#^Call to function array_search\\(\\) requires parameter \\#3 to be set\\.$#"
+			count: 1
+			path: lib/Resque/Event.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 1
+			path: lib/Resque/Event.php
+
+		-
+			message: "#^Method Resque_Event\\:\\:clearListeners\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Event.php
+
+		-
+			message: "#^Property Resque_Event\\:\\:\\$events type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque/Event.php
+
+		-
+			message: "#^Method Resque_Failure\\:\\:create\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Failure.php
+
+		-
+			message: "#^Method Resque_Failure\\:\\:createFromError\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Failure.php
+
+		-
+			message: "#^Method Resque_Failure\\:\\:getBackend\\(\\) should return object but returns string\\.$#"
+			count: 1
+			path: lib/Resque/Failure.php
+
+		-
+			message: "#^Method Resque_Failure\\:\\:setBackend\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Failure.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:rpush\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque/Failure/Redis.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:getMessage\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque/Failure/Redis.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:getTraceAsString\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque/Failure/Redis.php
+
+		-
+			message: "#^Cannot cast object to string\\.$#"
+			count: 1
+			path: lib/Resque/Failure/Redis.php
+
+		-
+			message: "#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#"
+			count: 2
+			path: lib/Resque/Job.php
+
+		-
+			message: "#^Call to function is_null\\(\\) with object will always evaluate to false\\.$#"
+			count: 1
+			path: lib/Resque/Job.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 5
+			path: lib/Resque/Job.php
+
+		-
+			message: "#^Method Resque_Job\\:\\:__construct\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque/Job.php
+
+		-
+			message: "#^Method Resque_Job\\:\\:create\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque/Job.php
+
+		-
+			message: "#^Method Resque_Job\\:\\:fail\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Job.php
+
+		-
+			message: "#^Method Resque_Job\\:\\:fail\\(\\) has parameter \\$exception with no type specified\\.$#"
+			count: 1
+			path: lib/Resque/Job.php
+
+		-
+			message: "#^Method Resque_Job\\:\\:getArguments\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque/Job.php
+
+		-
+			message: "#^Method Resque_Job\\:\\:getInstance\\(\\) should return Resque_JobInterface but returns object\\.$#"
+			count: 1
+			path: lib/Resque/Job.php
+
+		-
+			message: "#^Method Resque_Job\\:\\:getStatus\\(\\) should return int\\|null but returns mixed\\.$#"
+			count: 1
+			path: lib/Resque/Job.php
+
+		-
+			message: "#^Method Resque_Job\\:\\:reserveBlocking\\(\\) has parameter \\$queues with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque/Job.php
+
+		-
+			message: "#^Method Resque_Job\\:\\:updateStatus\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Job.php
+
+		-
+			message: "#^Method Resque_Job\\:\\:updateStatus\\(\\) has parameter \\$result with no type specified\\.$#"
+			count: 1
+			path: lib/Resque/Job.php
+
+		-
+			message: "#^Parameter \\#1 \\$payload of static method Resque_Failure\\:\\:create\\(\\) expects object, array given\\.$#"
+			count: 1
+			path: lib/Resque/Job.php
+
+		-
+			message: "#^Parameter \\#1 \\$payload of static method Resque_Failure\\:\\:createFromError\\(\\) expects object, array given\\.$#"
+			count: 1
+			path: lib/Resque/Job.php
+
+		-
+			message: "#^Parameter \\#2 \\$timeout of static method Resque\\:\\:blpop\\(\\) expects int, int\\|null given\\.$#"
+			count: 1
+			path: lib/Resque/Job.php
+
+		-
+			message: "#^Property Resque_Job\\:\\:\\$instance is never written, only read\\.$#"
+			count: 1
+			path: lib/Resque/Job.php
+
+		-
+			message: "#^Property Resque_Job\\:\\:\\$payload type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque/Job.php
+
+		-
+			message: "#^Result of && is always false\\.$#"
+			count: 1
+			path: lib/Resque/Job.php
+
+		-
+			message: "#^Unreachable statement \\- code above always terminates\\.$#"
+			count: 1
+			path: lib/Resque/Job.php
+
+		-
+			message: "#^Access to an undefined property object\\:\\:\\$args\\.$#"
+			count: 1
+			path: lib/Resque/Job/Factory.php
+
+		-
+			message: "#^Access to an undefined property object\\:\\:\\$queue\\.$#"
+			count: 1
+			path: lib/Resque/Job/Factory.php
+
+		-
+			message: "#^Method Resque_Job_Factory\\:\\:create\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque/Job/Factory.php
+
+		-
+			message: "#^Method Resque_Job_Factory\\:\\:create\\(\\) has parameter \\$className with no type specified\\.$#"
+			count: 1
+			path: lib/Resque/Job/Factory.php
+
+		-
+			message: "#^Method Resque_Job_Factory\\:\\:create\\(\\) has parameter \\$queue with no type specified\\.$#"
+			count: 1
+			path: lib/Resque/Job/Factory.php
+
+		-
+			message: "#^Method Resque_Job_Factory\\:\\:create\\(\\) should return Resque_JobInterface but returns object\\.$#"
+			count: 1
+			path: lib/Resque/Job/Factory.php
+
+		-
+			message: "#^Method Resque_Job_FactoryInterface\\:\\:create\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque/Job/FactoryInterface.php
+
+		-
+			message: "#^Method Resque_Job_FactoryInterface\\:\\:create\\(\\) has parameter \\$className with no type specified\\.$#"
+			count: 1
+			path: lib/Resque/Job/FactoryInterface.php
+
+		-
+			message: "#^Method Resque_Job_FactoryInterface\\:\\:create\\(\\) has parameter \\$queue with no type specified\\.$#"
+			count: 1
+			path: lib/Resque/Job/FactoryInterface.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:del\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque/Job/PID.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:get\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque/Job/PID.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:set\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque/Job/PID.php
+
+		-
+			message: "#^Method Resque_Job_PID\\:\\:create\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Job/PID.php
+
+		-
+			message: "#^Method Resque_Job_PID\\:\\:del\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Job/PID.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:del\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque/Job/Status.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:exists\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque/Job/Status.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:expire\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque/Job/Status.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:get\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque/Job/Status.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:set\\(\\)\\.$#"
+			count: 2
+			path: lib/Resque/Job/Status.php
+
+		-
+			message: "#^Call to function in_array\\(\\) requires parameter \\#3 to be set\\.$#"
+			count: 1
+			path: lib/Resque/Job/Status.php
+
+		-
+			message: "#^Cannot access offset mixed on mixed\\.$#"
+			count: 1
+			path: lib/Resque/Job/Status.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 2
+			path: lib/Resque/Job/Status.php
+
+		-
+			message: "#^Method Resque_Job_Status\\:\\:__construct\\(\\) has parameter \\$prefix with no type specified\\.$#"
+			count: 1
+			path: lib/Resque/Job/Status.php
+
+		-
+			message: "#^Method Resque_Job_Status\\:\\:create\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Job/Status.php
+
+		-
+			message: "#^Method Resque_Job_Status\\:\\:create\\(\\) has parameter \\$prefix with no type specified\\.$#"
+			count: 1
+			path: lib/Resque/Job/Status.php
+
+		-
+			message: "#^Method Resque_Job_Status\\:\\:fetch\\(\\) has parameter \\$value with no type specified\\.$#"
+			count: 1
+			path: lib/Resque/Job/Status.php
+
+		-
+			message: "#^Method Resque_Job_Status\\:\\:stop\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Job/Status.php
+
+		-
+			message: "#^Method Resque_Job_Status\\:\\:update\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Job/Status.php
+
+		-
+			message: "#^Method Resque_Job_Status\\:\\:update\\(\\) has parameter \\$result with no type specified\\.$#"
+			count: 1
+			path: lib/Resque/Job/Status.php
+
+		-
+			message: "#^Method Resque_Job_Status\\:\\:update\\(\\) has parameter \\$status with no type specified\\.$#"
+			count: 1
+			path: lib/Resque/Job/Status.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, mixed given\\.$#"
+			count: 1
+			path: lib/Resque/Job/Status.php
+
+		-
+			message: "#^PHPDoc tag @param has invalid value \\(int The status of the job \\(see constants in Resque_Job_Status\\)\\)\\: Unexpected token \"The\", expected variable at offset 103$#"
+			count: 1
+			path: lib/Resque/Job/Status.php
+
+		-
+			message: "#^Property Resque_Job_Status\\:\\:\\$completeStatuses type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque/Job/Status.php
+
+		-
+			message: "#^Method Resque_Log\\:\\:__construct\\(\\) has parameter \\$verbose with no type specified\\.$#"
+			count: 1
+			path: lib/Resque/Log.php
+
+		-
+			message: "#^Method Resque_Log\\:\\:interpolate\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque/Log.php
+
+		-
+			message: "#^Method Resque_Log\\:\\:log\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque/Log.php
+
+		-
+			message: "#^PHPDoc tag @return with type null is incompatible with native type void\\.$#"
+			count: 1
+			path: lib/Resque/Log.php
+
+		-
+			message: "#^Property Resque_Log\\:\\:\\$verbose has no type specified\\.$#"
+			count: 1
+			path: lib/Resque/Log.php
+
+		-
+			message: "#^Call to an undefined method Redis\\|RedisCluster\\:\\:select\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque/Redis.php
+
+		-
+			message: "#^Call to function base64_decode\\(\\) requires parameter \\#2 to be set\\.$#"
+			count: 1
+			path: lib/Resque/Redis.php
+
+		-
+			message: "#^Call to function in_array\\(\\) requires parameter \\#3 to be set\\.$#"
+			count: 2
+			path: lib/Resque/Redis.php
+
+		-
+			message: "#^Call to function is_object\\(\\) with array\\|string will always evaluate to false\\.$#"
+			count: 1
+			path: lib/Resque/Redis.php
+
+		-
+			message: "#^Cannot access offset 'host' on array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int\\<0, 65535\\>, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\|false\\.$#"
+			count: 1
+			path: lib/Resque/Redis.php
+
+		-
+			message: "#^Method Resque_Redis\\:\\:__call\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque/Redis.php
+
+		-
+			message: "#^Method Resque_Redis\\:\\:__construct\\(\\) has parameter \\$server with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque/Redis.php
+
+		-
+			message: "#^Method Resque_Redis\\:\\:getPrefix\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Redis.php
+
+		-
+			message: "#^Method Resque_Redis\\:\\:parseDsn\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque/Redis.php
+
+		-
+			message: "#^Method Resque_Redis\\:\\:prefix\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Redis.php
+
+		-
+			message: "#^Method Resque_Redis\\:\\:removePrefix\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Redis.php
+
+		-
+			message: "#^Method Resque_Redis\\:\\:removePrefix\\(\\) has parameter \\$string with no type specified\\.$#"
+			count: 1
+			path: lib/Resque/Redis.php
+
+		-
+			message: "#^Only booleans are allowed in &&, array\\<int\\|string, array\\|string\\> given on the left side\\.$#"
+			count: 2
+			path: lib/Resque/Redis.php
+
+		-
+			message: "#^Parameter \\#3 \\$timeout of method Redis\\:\\:connect\\(\\) expects float, int\\|null given\\.$#"
+			count: 1
+			path: lib/Resque/Redis.php
+
+		-
+			message: "#^Parameter \\#3 \\$timeout of method Redis\\:\\:pconnect\\(\\) expects float, int\\|null given\\.$#"
+			count: 1
+			path: lib/Resque/Redis.php
+
+		-
+			message: "#^Property Resque_Redis\\:\\:\\$keyCommands type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque/Redis.php
+
+		-
+			message: "#^Variable method call on Redis\\|RedisCluster\\.$#"
+			count: 1
+			path: lib/Resque/Redis.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:decrby\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque/Stat.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:del\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque/Stat.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:get\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque/Stat.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:incrby\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque/Stat.php
+
+		-
+			message: "#^Access to an undefined property object\\:\\:\\$queue\\.$#"
+			count: 2
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Binary operation \"\\.\" between 'done ' and object\\|true results in an error\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:del\\(\\)\\.$#"
+			count: 3
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:get\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:ping\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:sadd\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:set\\(\\)\\.$#"
+			count: 2
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:sismember\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:smembers\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:srem\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Call to an undefined method object\\:\\:unregisterWorker\\(\\)\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Call to function in_array\\(\\) requires parameter \\#3 to be set\\.$#"
+			count: 3
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Call to function is_object\\(\\) with Resque_Job will always evaluate to true\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Call to method log\\(\\) on an unknown class LoggerInterface\\.$#"
+			count: 23
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Cannot access property \\$queue on object\\|true\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Cannot call method fail\\(\\) on object\\|true\\.$#"
+			count: 2
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Cannot call method getStatus\\(\\) on object\\|true\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Cannot call method updateStatus\\(\\) on object\\|true\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Cannot cast object to string\\.$#"
+			count: 2
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Caught class CredisException not found\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 3
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Instantiated class CredisException not found\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:__construct\\(\\) has parameter \\$queues with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:all\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:doneWorking\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:find\\(\\) should return Resque_Worker but returns false\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:getStat\\(\\) should return int but returns mixed\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:job\\(\\) should return object but returns array\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:job\\(\\) should return object but returns mixed\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:killChild\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:pauseProcessing\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:perform\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:pruneDeadWorkers\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:queues\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:registerSigHandlers\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:registerWorker\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:reserve\\(\\) should return bool\\|object but empty return statement found\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:setId\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:setLogger\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:setProcessPrefix\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:shutdown\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:shutdownNow\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:startup\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:unPauseProcessing\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:unregisterWorker\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:updateProcLine\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:work\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:work\\(\\) has parameter \\$blocking with no type specified\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:workerPids\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Method Resque_Worker\\:\\:workingOn\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Only booleans are allowed in &&, string\\|false given on the left side\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, bool\\|object given\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, int given\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, object\\|false given\\.$#"
+			count: 2
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Only numeric types are allowed in \\*, int\\|null given on the left side\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^PHPDoc tag @param for parameter \\$job with type object is not subtype of native type Resque_Job\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Parameter \\#1 \\$job of method Resque_Worker\\:\\:perform\\(\\) expects Resque_Job, object\\|true given\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Parameter \\#1 \\$job of method Resque_Worker\\:\\:workingOn\\(\\) expects Resque_Job, object\\|true given\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of function trim expects string, string\\|null given\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Property Resque_Worker\\:\\:\\$child \\(int\\) does not accept null\\.$#"
+			count: 2
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Property Resque_Worker\\:\\:\\$currentJob \\(Resque_Job\\) does not accept null\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Property Resque_Worker\\:\\:\\$logger \\(LoggerInterface\\) does not accept Psr\\\\Log\\\\LoggerInterface\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Property Resque_Worker\\:\\:\\$logger \\(LoggerInterface\\) does not accept Resque_Log\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Property Resque_Worker\\:\\:\\$logger has unknown class LoggerInterface as its type\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Property Resque_Worker\\:\\:\\$queues type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Static property Resque\\:\\:\\$redis \\(Resque_Redis\\) does not accept null\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between int\\<min, \\-1\\>\\|int\\<1, max\\> and false will always evaluate to false\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Throwing object of an unknown class CredisException\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Unsafe access to private property Resque_Worker\\:\\:\\$processPrefix through static\\:\\:\\.$#"
+			count: 1
+			path: lib/Resque/Worker.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:del\\(\\)\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:keys\\(\\)\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:llen\\(\\)\\.$#"
+			count: 2
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:lpop\\(\\)\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:lrem\\(\\)\\.$#"
+			count: 2
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:rpush\\(\\)\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:zadd\\(\\)\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:zcard\\(\\)\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:zrangebyscore\\(\\)\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Call to an undefined method Resque_Redis\\:\\:zrem\\(\\)\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Call to an undefined static method ResqueScheduler\\:\\:toTimestamp\\(\\)\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Casting to int something that's already int\\.$#"
+			count: 2
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 3
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Dynamic call to static method Resque_Redis\\:\\:removePrefix\\(\\)\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Method ResqueScheduler\\:\\:cleanupTimestamp\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Method ResqueScheduler\\:\\:delayedPush\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Method ResqueScheduler\\:\\:delayedPush\\(\\) has parameter \\$item with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Method ResqueScheduler\\:\\:enqueueAt\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Method ResqueScheduler\\:\\:enqueueAt\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Method ResqueScheduler\\:\\:enqueueIn\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Method ResqueScheduler\\:\\:enqueueIn\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Method ResqueScheduler\\:\\:jobToHash\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Method ResqueScheduler\\:\\:jobToHash\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Method ResqueScheduler\\:\\:nextDelayedTimestamp\\(\\) has parameter \\$at with no type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Method ResqueScheduler\\:\\:nextItemForTimestamp\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Method ResqueScheduler\\:\\:nextItemForTimestamp\\(\\) should return array but returns mixed\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Method ResqueScheduler\\:\\:removeDelayed\\(\\) has parameter \\$args with no type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Method ResqueScheduler\\:\\:removeDelayed\\(\\) has parameter \\$class with no type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Method ResqueScheduler\\:\\:removeDelayed\\(\\) has parameter \\$queue with no type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Method ResqueScheduler\\:\\:removeDelayedJobFromTimestamp\\(\\) has parameter \\$args with no type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Method ResqueScheduler\\:\\:removeDelayedJobFromTimestamp\\(\\) has parameter \\$class with no type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Method ResqueScheduler\\:\\:removeDelayedJobFromTimestamp\\(\\) has parameter \\$queue with no type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Method ResqueScheduler\\:\\:removeDelayedJobFromTimestamp\\(\\) has parameter \\$timestamp with no type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Method ResqueScheduler\\:\\:validateJob\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^PHPDoc tag @param references unknown parameter\\: \\$timestamp$#"
+			count: 1
+			path: lib/ResqueScheduler.php
+
+		-
+			message: "#^Method ResqueScheduler_Worker\\:\\:enqueueDelayedItemsForTimestamp\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler/Worker.php
+
+		-
+			message: "#^Method ResqueScheduler_Worker\\:\\:handleDelayedItems\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler/Worker.php
+
+		-
+			message: "#^Method ResqueScheduler_Worker\\:\\:log\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler/Worker.php
+
+		-
+			message: "#^Method ResqueScheduler_Worker\\:\\:pauseProcessing\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler/Worker.php
+
+		-
+			message: "#^Method ResqueScheduler_Worker\\:\\:registerSigHandlers\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler/Worker.php
+
+		-
+			message: "#^Method ResqueScheduler_Worker\\:\\:shutdown\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler/Worker.php
+
+		-
+			message: "#^Method ResqueScheduler_Worker\\:\\:sleep\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler/Worker.php
+
+		-
+			message: "#^Method ResqueScheduler_Worker\\:\\:unPauseProcessing\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler/Worker.php
+
+		-
+			message: "#^Method ResqueScheduler_Worker\\:\\:updateProcLine\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler/Worker.php
+
+		-
+			message: "#^Method ResqueScheduler_Worker\\:\\:work\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: lib/ResqueScheduler/Worker.php

@@ -2,7 +2,6 @@
 
 class Resque_Job_Factory implements Resque_Job_FactoryInterface
 {
-
     /**
      * @param $className
      * @param array $args
@@ -24,7 +23,7 @@ class Resque_Job_Factory implements Resque_Job_FactoryInterface
             );
         }
 
-        $instance = new $className;
+        $instance = new $className();
         $instance->args = $args;
         $instance->queue = $queue;
         return $instance;

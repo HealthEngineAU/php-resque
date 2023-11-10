@@ -7,7 +7,4 @@
 * @copyright	(c) 2012 Chris Boulton
 * @license		http://www.opensource.org/licenses/mit-license.php
 */
-class ResqueScheduler_InvalidTimestampException extends Resque_Exception
-{
-
-}
+class ResqueScheduler_InvalidTimestampException extends Resque_Exception {}
