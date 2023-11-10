@@ -1,6 +1,6 @@
 <?php
 /**
- * Wrap Credis to add namespace support and various helper methods.
+ * Wrap {@see Redis} to add namespace support and various helper methods.
  *
  * @package		Resque/Redis
  * @author		Chris Boulton <chris@bigcommerce.com>
@@ -113,7 +113,7 @@ class Resque_Redis
      * @param string|array $server A DSN or array
      * @param int $database A database number to select. However, if we find a valid database number in the DSN the
      *                      DSN-supplied value will be used instead and this parameter is ignored.
-     * @param null|\Redis|\RedisCluster $client Optional Credis_Cluster or Credis_Client instance instantiated by you
+     * @param null|\Redis|\RedisCluster $client Optional {@see RedisCluster} or {@see Redis} instantiated by you
      */
     public function __construct($server, $database = null, $client = null)
     {
