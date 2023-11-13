@@ -40,13 +40,11 @@
         "phpunit/phpunit": "^10.4"
     },
     "bin": [
-        "bin/resque",
-        "bin/resque-scheduler"
+        "bin/resque"
     ],
     "autoload": {
         "psr-0": {
-            "Resque": "lib/",
-            "ResqueScheduler": "lib/"
+            "Resque": "lib/"
         }
     },
     "autoload-dev": {
