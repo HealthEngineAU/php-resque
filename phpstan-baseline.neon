@@ -1,28 +1,13 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Access to an undefined property Resque_Worker\\:\\:\\$hasParent\\.$#"
-			count: 2
-			path: bin/resque
-
-		-
-			message: "#^Call to function in_array\\(\\) requires parameter \\#3 to be set\\.$#"
-			count: 2
+			message: "#^Call to an undefined method object\\:\\:log\\(\\)\\.$#"
+			count: 4
 			path: bin/resque
 
 		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 9
-			path: bin/resque
-
-		-
-			message: "#^Function cleanup_children\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: bin/resque
-
-		-
-			message: "#^Function cleanup_children\\(\\) has parameter \\$signal with no type specified\\.$#"
-			count: 1
 			path: bin/resque
 
 		-
@@ -32,7 +17,12 @@ parameters:
 
 		-
 			message: "#^Only booleans are allowed in an if condition, string\\|false given\\.$#"
-			count: 3
+			count: 2
+			path: bin/resque
+
+		-
+			message: "#^Only booleans are allowed in \\|\\|, int\\<0, max\\>\\|false given on the left side\\.$#"
+			count: 1
 			path: bin/resque
 
 		-
@@ -41,59 +31,19 @@ parameters:
 			path: bin/resque
 
 		-
+			message: "#^Parameter \\#1 \\$logger of method Resque_Worker\\:\\:setLogger\\(\\) expects Psr\\\\Log\\\\LoggerInterface, object given\\.$#"
+			count: 2
+			path: bin/resque
+
+		-
 			message: "#^Parameter \\#2 \\$database of static method Resque\\:\\:setBackend\\(\\) expects int, string given\\.$#"
 			count: 1
 			path: bin/resque
 
 		-
-			message: "#^Strict comparison using \\!\\=\\= between false and false will always evaluate to false\\.$#"
+			message: "#^Strict comparison using \\=\\=\\= between int and false will always evaluate to false\\.$#"
 			count: 1
 			path: bin/resque
-
-		-
-			message: "#^Access to constant LOG_NORMAL on an unknown class ResqueScheduler_Worker\\.$#"
-			count: 1
-			path: bin/resque-scheduler
-
-		-
-			message: "#^Access to constant LOG_VERBOSE on an unknown class ResqueScheduler_Worker\\.$#"
-			count: 1
-			path: bin/resque-scheduler
-
-		-
-			message: "#^Access to property \\$logLevel on an unknown class ResqueScheduler_Worker\\.$#"
-			count: 2
-			path: bin/resque-scheduler
-
-		-
-			message: "#^Call to method work\\(\\) on an unknown class ResqueScheduler_Worker\\.$#"
-			count: 1
-			path: bin/resque-scheduler
-
-		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 7
-			path: bin/resque-scheduler
-
-		-
-			message: "#^Instantiated class ResqueScheduler_Worker not found\\.$#"
-			count: 1
-			path: bin/resque-scheduler
-
-		-
-			message: "#^Only booleans are allowed in an if condition, string\\|false given\\.$#"
-			count: 2
-			path: bin/resque-scheduler
-
-		-
-			message: "#^Only booleans are allowed in \\|\\|, int\\<0, max\\>\\|false given on the left side\\.$#"
-			count: 1
-			path: bin/resque-scheduler
-
-		-
-			message: "#^Parameter \\#2 \\$database of static method Resque\\:\\:setBackend\\(\\) expects int, string given\\.$#"
-			count: 1
-			path: bin/resque-scheduler
 
 		-
 			message: "#^Call to an undefined method Resque_Redis\\:\\:blpop\\(\\)\\.$#"

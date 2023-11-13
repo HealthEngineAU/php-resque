@@ -4,5 +4,4 @@ parameters:
   level: 9
   paths:
     - bin/resque
-    - bin/resque-scheduler
     - lib
