@@ -7,6 +7,14 @@
  * @license		http://www.opensource.org/licenses/mit-license.php
  */
 
+ini_set('display_errors', 1);
+ini_set('error_reporting', E_ALL);
+
+// Throw all error levels as exceptions.
+set_error_handler(function (int $level, string $message, string $file, int $line): bool {
+    throw new \ErrorException($message, 0, $level, $file, $line);
+});
+
 $loader = require __DIR__ . '/../vendor/autoload.php';
 $loader->add('Resque_Tests', __DIR__);
 
