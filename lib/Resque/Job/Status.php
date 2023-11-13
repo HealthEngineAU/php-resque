@@ -14,11 +14,6 @@ class Resque_Job_Status
     public const STATUS_COMPLETE = 4;
 
     /**
-     * @var string The prefix of the job status id.
-     */
-    private $prefix;
-
-    /**
      * @var string The ID of the job this status class refers back to.
      */
     private $id;
@@ -42,10 +37,9 @@ class Resque_Job_Status
      *
      * @param string $id The ID of the job to manage the status for.
      */
-    public function __construct($id, $prefix = '')
+    public function __construct($id)
     {
         $this->id = $id;
-        $this->prefix = empty($prefix) ? '' : "${prefix}_";
     }
 
     /**
@@ -54,18 +48,14 @@ class Resque_Job_Status
      *
      * @param string $id The ID of the job to monitor the status of.
      */
-    public static function create($id, $prefix = "")
+    public static function create($id)
     {
-        $status = new self($id, $prefix);
         $statusPacket = array(
-            'status'  => self::STATUS_WAITING,
+            'status' => self::STATUS_WAITING,
             'updated' => time(),
             'started' => time(),
-            'result'  => null,
         );
-        Resque::redis()->set((string) $status, json_encode($statusPacket));
-
-        return $status;
+        Resque::redis()->set('job:' . $id . ':status', json_encode($statusPacket));
     }
 
     /**
@@ -94,23 +84,15 @@ class Resque_Job_Status
      *
      * @param int The status of the job (see constants in Resque_Job_Status)
      */
-    public function update($status, $result = null)
+    public function update($status)
     {
-        $status = (int) $status;
-
         if(!$this->isTracking()) {
             return;
         }
 
-        if($status < self::STATUS_WAITING || $status > self::STATUS_COMPLETE) {
-            return;
-        }
-
         $statusPacket = array(
-            'status'  => $status,
+            'status' => $status,
             'updated' => time(),
-            'started' => $this->fetch('started'),
-            'result'  => $result,
         );
         Resque::redis()->set((string)$this, json_encode($statusPacket));
 
@@ -123,56 +105,21 @@ class Resque_Job_Status
     /**
      * Fetch the status for the job being monitored.
      *
-     * @return mixed False if the status is not being monitored, otherwise the status
+     * @return mixed False if the status is not being monitored, otherwise the status as
      * 	as an integer, based on the Resque_Job_Status constants.
      */
     public function get()
     {
-        return $this->status();
-    }
+        if(!$this->isTracking()) {
+            return false;
+        }
 
-    /**
-     * Fetch the status for the job being monitored.
-     *
-     * @return mixed False if the status is not being monitored, otherwise the status
-     * 	as an integer, based on the Resque_Job_Status constants.
-     */
-    public function status()
-    {
-        return $this->fetch('status');
-    }
+        $statusPacket = json_decode(Resque::redis()->get((string)$this), true);
+        if(!$statusPacket) {
+            return false;
+        }
 
-    /**
-     * Fetch the last update timestamp of the job being monitored.
-     *
-     * @return mixed False if the job is not being monitored, otherwise the
-     *  update timestamp.
-     */
-    public function updated()
-    {
-        return $this->fetch('updated');
-    }
-
-    /**
-     * Fetch the start timestamp of the job being monitored.
-     *
-     * @return mixed False if the job is not being monitored, otherwise the
-     *  start timestamp.
-     */
-    public function started()
-    {
-        return $this->fetch('started');
-    }
-
-    /**
-     * Fetch the result of the job being monitored.
-     *
-     * @return mixed False if the job is not being monitored, otherwise the result
-     * 	as mixed
-     */
-    public function result()
-    {
-        return $this->fetch('result');
+        return $statusPacket['status'];
     }
 
     /**
@@ -190,35 +137,6 @@ class Resque_Job_Status
      */
     public function __toString()
     {
-        return 'job:' . $this->prefix . $this->id . ':status';
-    }
-
-    /**
-    * Fetch a value from the status packet for the job being monitored.
-    *
-    * @return mixed False if the status is not being monitored, otherwise the
-    *  requested value from the status packet.
-    */
-    protected function fetch($value = null)
-    {
-        if(!$this->isTracking()) {
-            return false;
-        }
-
-        $statusPacket = json_decode(Resque::redis()->get((string)$this), true);
-        if(!$statusPacket) {
-            return false;
-        }
-
-        if(empty($value)) {
-            return $statusPacket;
-        } else {
-            if(isset($statusPacket[$value])) {
-                return $statusPacket[$value];
-            } else {
-                return null;
-            }
-        }
-
+        return 'job:' . $this->id . ':status';
     }
 }

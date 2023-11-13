@@ -1,6 +1,6 @@
 <?php
 /**
- * Wrap {@see Redis} to add namespace support and various helper methods.
+ * Wrap Credis to add namespace support and various helper methods.
  *
  * @package		Resque/Redis
  * @author		Chris Boulton <chris@bigcommerce.com>
@@ -28,11 +28,6 @@ class Resque_Redis
      * The default Redis Database number
      */
     public const DEFAULT_DATABASE = 0;
-
-    /**
-     * @var Redis|RedisCluster
-     */
-    private $driver;
 
     /**
      * @var array List of all commands in Redis that supply a key as their
@@ -113,58 +108,29 @@ class Resque_Redis
      * @param string|array $server A DSN or array
      * @param int $database A database number to select. However, if we find a valid database number in the DSN the
      *                      DSN-supplied value will be used instead and this parameter is ignored.
-     * @param null|\Redis|\RedisCluster $client Optional {@see RedisCluster} or {@see Redis} instantiated by you
+     * @param object $client Optional Credis_Cluster or Credis_Client instance instantiated by you
      */
     public function __construct($server, $database = null, $client = null)
     {
         try {
-            if (is_object($client)) {
+            if (is_array($server)) {
+                $this->driver = new Credis_Cluster($server);
+            } elseif (is_object($client)) {
                 $this->driver = $client;
-            } elseif (is_object($server)) {
-                $this->driver = $server;
-            } elseif (is_array($server)) {
-                $this->driver = new \RedisCluster(null, $server);
             } else {
                 list($host, $port, $dsnDatabase, $user, $password, $options) = self::parseDsn($server);
                 // $user is not used, only $password
 
-                // Look for known Redis options
-                $timeout = isset($options['timeout']) ? floatval($options['timeout']) : null;
+                // Look for known Credis_Client options
+                $timeout = isset($options['timeout']) ? intval($options['timeout']) : null;
                 $persistent = isset($options['persistent']) ? $options['persistent'] : '';
                 $maxRetries = isset($options['max_connect_retries']) ? $options['max_connect_retries'] : 0;
 
-                $redis = new \Redis();
-                $try = 0;
-                $connected = false;
-                $lastException = null;
-
-                while (!$connected && $try <= $maxRetries) {
-                    $try += 1;
-
-                    try {
-                        if (is_string($persistent) && trim($persistent) !== '') {
-                            $connected = $redis->pconnect($host, $port, $timeout ?? 0.0, $persistent);
-                        } else {
-                            $connected = $redis->connect($host, $port, $timeout ?? 0.0);
-                        }
-                    } catch (\RedisException $e) {
-                        $lastException = $e;
-                    }
-                }
-
-                if (!$connected) {
-                    if ($lastException instanceof \RedisException) {
-                        throw $lastException;
-                    } else {
-                        throw new \RedisException('Failed to connect to Redis after exhausting all retries');
-                    }
-                }
-
+                $this->driver = new Credis_Client($host, $port, $timeout, $persistent);
+                $this->driver->setMaxConnectRetries($maxRetries);
                 if ($password) {
-                    $redis->auth($password);
+                    $this->driver->auth($password);
                 }
-
-                $this->driver = $redis;
 
                 // If we have found a database in our DSN, use it instead of the `$database`
                 // value passed into the constructor.
@@ -176,7 +142,7 @@ class Resque_Redis
             if ($database !== null) {
                 $this->driver->select($database);
             }
-        } catch(\RedisException $e) {
+        } catch(CredisException $e) {
             throw new Resque_RedisException('Error communicating with Redis: ' . $e->getMessage(), 0, $e);
         }
     }
@@ -235,26 +201,15 @@ class Resque_Redis
             $database = intval(preg_replace('/[^0-9]/', '', $parts['path']));
         }
 
-        // Extract any 'user' values
+        // Extract any 'user' and 'pass' values
         $user = isset($parts['user']) ? $parts['user'] : false;
+        $pass = isset($parts['pass']) ? $parts['pass'] : false;
 
         // Convert the query string into an associative array
         $options = array();
         if (isset($parts['query'])) {
             // Parse the query string into an array
             parse_str($parts['query'], $options);
-        }
-
-        //check 'password-encoding' parameter and extracting password based on encoding
-        if($options && isset($options['password-encoding']) && $options['password-encoding'] === 'u') {
-            //extracting urlencoded password
-            $pass = isset($parts['pass']) ? urldecode($parts['pass']) : false;
-        } elseif($options && isset($options['password-encoding']) && $options['password-encoding'] === 'b') {
-            //extracting base64 encoded password
-            $pass = isset($parts['pass']) ? base64_decode($parts['pass']) : false;
-        } else {
-            //extracting pass directly since 'password-encoding' parameter is not present
-            $pass = isset($parts['pass']) ? $parts['pass'] : false;
         }
 
         return array(
@@ -287,8 +242,8 @@ class Resque_Redis
             }
         }
         try {
-            return $this->driver->{$name}(...$args);
-        } catch (\RedisException $e) {
+            return $this->driver->__call($name, $args);
+        } catch (CredisException $e) {
             throw new Resque_RedisException('Error communicating with Redis: ' . $e->getMessage(), 0, $e);
         }
     }

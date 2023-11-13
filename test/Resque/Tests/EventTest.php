@@ -11,7 +11,7 @@ class Resque_Tests_EventTest extends Resque_Tests_TestCase
 {
     private $callbacksHit = array();
 
-    protected function setUp(): void
+    public function setUp(): void
     {
         Test_Job::$called = false;
 
@@ -21,7 +21,7 @@ class Resque_Tests_EventTest extends Resque_Tests_TestCase
         $this->worker->registerWorker();
     }
 
-    protected function tearDown(): void
+    public function tearDown(): void
     {
         Resque_Event::clearListeners();
         $this->callbacksHit = array();
@@ -166,7 +166,7 @@ class Resque_Tests_EventTest extends Resque_Tests_TestCase
         $this->assertEquals($args[0], 'somevar');
     }
 
-    public function afterEnqueueEventCallback($class, $args, $id, $queue)
+    public function afterEnqueueEventCallback($args, $class, $id, $queue)
     {
         $this->callbacksHit[] = __FUNCTION__;
         $this->assertEquals('Test_Job', $class);

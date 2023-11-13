@@ -19,15 +19,11 @@ class Resque_Tests_TestCase extends TestCase
         date_default_timezone_set('UTC');
     }
 
-    protected function setUp(): void
+    public function setUp(): void
     {
         $config = file_get_contents(REDIS_CONF);
         preg_match('#^\s*port\s+([0-9]+)#m', $config, $matches);
-
-        $redis = new \Redis();
-        $redis->connect('localhost', $matches[1]);
-
-        $this->redis = $redis;
+        $this->redis = new Credis_Client('localhost', $matches[1]);
 
         Resque::setBackend('redis://localhost:' . $matches[1]);
 

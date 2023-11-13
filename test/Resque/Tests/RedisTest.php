@@ -11,17 +11,16 @@ class Resque_Tests_RedisTest extends Resque_Tests_TestCase
 {
     public function testRedisExceptionsAreSurfaced()
     {
-        $mockRedis = $this->createMock(\Redis::class);
-        $mockRedis->method('connect')->willReturn(true);
-        $mockRedis->expects($this->any())->method('ping')
-            ->will($this->throwException(new \RedisException('failure')));
+        $mockCredis = $this->getMockBuilder('Credis_Client')
+            ->onlyMethods(['connect', '__call'])
+            ->getMock();
+        $mockCredis->expects($this->any())->method('__call')
+            ->will($this->throwException(new CredisException('failure')));
 
-        Resque::setBackend(function ($database) use ($mockRedis) {
-            return new Resque_Redis('localhost:6379', $database, $mockRedis);
+        Resque::setBackend(function ($database) use ($mockCredis) {
+            return new Resque_Redis('localhost:6379', $database, $mockCredis);
         });
-
         $this->expectException(Resque_RedisException::class);
-
         Resque::redis()->ping();
     }
 
@@ -190,8 +189,7 @@ class Resque_Tests_RedisTest extends Resque_Tests_TestCase
      */
     public function testParsingBogusDsnStringThrowsException($dsn)
     {
-        $this->expectException(\InvalidArgumentException::class);
-
+        $this->expectException(InvalidArgumentException::class);
         Resque_Redis::parseDsn($dsn);
     }
 }

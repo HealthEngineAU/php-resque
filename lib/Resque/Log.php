@@ -18,10 +18,13 @@ class Resque_Log extends Psr\Log\AbstractLogger
     /**
      * Logs with an arbitrary level.
      *
-     * @param mixed   $level    PSR-3 log level constant, or equivalent string
-     * @param string  $message  Message to log, may contain a { placeholder }
-     * @param array   $context  Variables to replace { placeholder }
-     * @return null
+     * @param mixed   $level
+     * @param string|\Stringable $message
+     * @param mixed[] $context
+     *
+     * @return void
+     *
+     * @throws \Psr\Log\InvalidArgumentException
      */
     public function log($level, string|\Stringable $message, array $context = []): void
     {
