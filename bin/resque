@@ -2,6 +2,8 @@
 <?php
 
 // Find and initialize Composer
+use Psr\Log\LoggerInterface;
+
 $files = array(
     __DIR__ . '/../../vendor/autoload.php',
     __DIR__ . '/../../../autoload.php',
@@ -67,9 +69,9 @@ if($APP_INCLUDE) {
     require_once $APP_INCLUDE;
 }
 
-// See if the APP_INCLUDE containes a logger object,
+// See if the APP_INCLUDE contains a logger object,
 // If none exists, fallback to internal logger
-if (!isset($logger) || !is_object($logger)) {
+if (!isset($logger) || !($logger instanceof LoggerInterface)) {
     $logger = new Resque_Log($logLevel);
 }
 
@@ -114,7 +116,7 @@ if($count > 1) {
         elseif(!$pid) {
             $queues = explode(',', $QUEUE);
             $worker = new Resque_Worker($queues);
-            $worker->logLevel = $logLevel;
+            $worker->setLogger($logger);
             $worker->hasParent = true;
             fwrite(STDOUT, '*** Starting worker ' . $worker . "\n");
             $worker->work($interval);
@@ -171,7 +173,7 @@ if($count > 1) {
 else {
     $queues = explode(',', $QUEUE);
     $worker = new Resque_Worker($queues);
-    $worker->logLevel = $logLevel;
+    $worker->setLogger($logger);
     $worker->hasParent = false;
 
     $PIDFILE = getenv('PIDFILE');

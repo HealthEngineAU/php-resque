@@ -1,16 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Access to an undefined property Resque_Worker\\:\\:\\$logLevel\\.$#"
-			count: 2
-			path: bin/resque
-
-		-
-			message: "#^Call to an undefined method object\\:\\:log\\(\\)\\.$#"
-			count: 4
-			path: bin/resque
-
-		-
 			message: "#^Call to function in_array\\(\\) requires parameter \\#3 to be set\\.$#"
 			count: 2
 			path: bin/resque
@@ -192,11 +182,6 @@ parameters:
 
 		-
 			message: "#^Method Resque\\:\\:enqueue\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: lib/Resque.php
-
-		-
-			message: "#^Method Resque\\:\\:fork\\(\\) should return int but returns false\\.$#"
 			count: 1
 			path: lib/Resque.php
 
@@ -791,11 +776,6 @@ parameters:
 			path: lib/Resque/Worker.php
 
 		-
-			message: "#^Call to method log\\(\\) on an unknown class LoggerInterface\\.$#"
-			count: 23
-			path: lib/Resque/Worker.php
-
-		-
 			message: "#^Cannot access property \\$queue on object\\|true\\.$#"
 			count: 1
 			path: lib/Resque/Worker.php
@@ -1017,21 +997,6 @@ parameters:
 
 		-
 			message: "#^Property Resque_Worker\\:\\:\\$currentJob \\(Resque_Job\\) does not accept null\\.$#"
-			count: 1
-			path: lib/Resque/Worker.php
-
-		-
-			message: "#^Property Resque_Worker\\:\\:\\$logger \\(LoggerInterface\\) does not accept Psr\\\\Log\\\\LoggerInterface\\.$#"
-			count: 1
-			path: lib/Resque/Worker.php
-
-		-
-			message: "#^Property Resque_Worker\\:\\:\\$logger \\(LoggerInterface\\) does not accept Resque_Log\\.$#"
-			count: 1
-			path: lib/Resque/Worker.php
-
-		-
-			message: "#^Property Resque_Worker\\:\\:\\$logger has unknown class LoggerInterface as its type\\.$#"
 			count: 1
 			path: lib/Resque/Worker.php
 

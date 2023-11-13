@@ -150,10 +150,7 @@ class ResqueScheduler_Worker
      */
     private function registerSigHandlers()
     {
-        if(!function_exists('pcntl_signal')) {
-            return;
-        }
-
+        pcntl_async_signals(true);
         pcntl_signal(SIGTERM, array($this, 'shutdown'));
         pcntl_signal(SIGINT, array($this, 'shutdown'));
         pcntl_signal(SIGQUIT, array($this, 'shutdown'));

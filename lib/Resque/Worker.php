@@ -1,5 +1,7 @@
 <?php
 
+use Psr\Log\LoggerInterface;
+
 /**
  * Resque worker that handles checking queues for jobs, fetching them
  * off the queues, running them and handling the result.
@@ -16,7 +18,7 @@ class Resque_Worker
     private static $processPrefix = 'resque';
 
     /**
-    * @var LoggerInterface Logging object that impliments the PSR-3 LoggerInterface
+    * @var LoggerInterface Logging object that implements the PSR-3 LoggerInterface
     */
     public $logger;
 
@@ -391,10 +393,7 @@ class Resque_Worker
      */
     private function registerSigHandlers()
     {
-        if(!function_exists('pcntl_signal')) {
-            return;
-        }
-
+        pcntl_async_signals(true);
         pcntl_signal(SIGTERM, array($this, 'shutDownNow'));
         pcntl_signal(SIGINT, array($this, 'shutDownNow'));
         pcntl_signal(SIGQUIT, array($this, 'shutdown'));

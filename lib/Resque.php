@@ -87,10 +87,6 @@ class Resque
      */
     public static function fork()
     {
-        if(!function_exists('pcntl_fork')) {
-            return false;
-        }
-
         // Close the connection to Redis before forking.
         // This is a workaround for issues phpredis has.
         self::$redis = null;
