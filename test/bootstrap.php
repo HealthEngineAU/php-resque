@@ -106,24 +106,6 @@ class Failing_Job
     }
 }
 
-/**
- * This job exits the forked worker process, which simulates the job being (forever) in progress,
- * so that we can verify the state of the system for "running jobs". Does not work on a non-forking OS.
- *
- * CAUTION Use this test job only with Worker::work, i.e. only when you actually trigger the fork in tests.
- */
-class InProgress_Job
-{
-    public function perform()
-    {
-        if(!function_exists('pcntl_fork')) {
-            // We can't lose the worker on a non-forking OS.
-            throw new Failing_Job_Exception('Do not use InProgress_Job for tests on non-forking OS!');
-        }
-        exit(0);
-    }
-}
-
 class Test_Job_Without_Perform_Method {}
 
 class Test_Job_With_SetUp
@@ -131,7 +113,7 @@ class Test_Job_With_SetUp
     public static $called = false;
     public $args = false;
 
-    public function setUp()
+    public function setUp(): void
     {
         self::$called = true;
     }
@@ -147,16 +129,8 @@ class Test_Job_With_TearDown
 
     public function perform() {}
 
-    public function tearDown()
+    public function tearDown(): void
     {
         self::$called = true;
-    }
-}
-
-class Test_Infinite_Recursion_Job
-{
-    public function perform()
-    {
-        $this->perform();
     }
 }

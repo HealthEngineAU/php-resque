@@ -14,7 +14,7 @@ class Resque_Tests_JobStatusTest extends Resque_Tests_TestCase
      */
     protected $worker;
 
-    protected function setUp(): void
+    public function setUp(): void
     {
         parent::setUp();
 

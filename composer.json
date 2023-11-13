@@ -7,24 +7,8 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Dan Hunsaker",
-            "email": "danhunsaker+resque@gmail.com",
-            "role": "Maintainer"
-        },
-        {
-            "name": "Rajib Ahmed",
-            "homepage": "https://github.com/rajibahmed",
-            "role": "Maintainer"
-        },
-        {
-            "name": "Steve Klabnik",
-            "email": "steve@steveklabnik.com",
-            "role": "Maintainer"
-        },
-        {
             "name": "Chris Boulton",
-            "email": "chris@bigcommerce.com",
-            "role": "Creator"
+            "email": "chris@bigcommerce.com"
         },
         {
             "email": "thomas.spencer@healthengine.com.au",
@@ -36,6 +20,7 @@
         "ext-pcntl": "*",
         "ext-posix": "*",
         "ext-redis": "*",
+        "colinmollenhour/credis": "^1.0",
         "psr/log": "^2.0 || ^3.0"
     },
     "scripts": {
