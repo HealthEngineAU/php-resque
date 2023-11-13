@@ -233,16 +233,7 @@ class Resque_Worker
                 $status = 'Processing ' . $job->queue . ' since ' . date('Y-m-d H:i:s');
                 $this->updateProcLine($status);
                 $this->logger->log(Psr\Log\LogLevel::INFO, $status);
-
-                if(!empty($job->payload['id'])) {
-                    Resque_Job_PID::create($job->payload['id']);
-                }
-
                 $this->perform($job);
-
-                if(!empty($job->payload['id'])) {
-                    Resque_Job_PID::del($job->payload['id']);
-                }
 
                 if ($this->child === 0) {
                     exit(0);
