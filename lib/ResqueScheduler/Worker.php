@@ -1,7 +1,5 @@
 <?php
 
-declare(ticks=1);
-
 /**
  * ResqueScheduler worker to handle scheduling of delayed tasks.
  *
