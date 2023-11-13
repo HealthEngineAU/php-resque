@@ -1,7 +1,5 @@
 <?php
 
-declare(ticks=1);
-
 /**
  * Resque worker that handles checking queues for jobs, fetching them
  * off the queues, running them and handling the result.
@@ -167,10 +165,6 @@ class Resque_Worker
         $this->updateProcLine('Starting');
         $this->startup();
 
-        if(function_exists('pcntl_signal_dispatch')) {
-            pcntl_signal_dispatch();
-        }
-
         while(true) {
             if($this->shutdown) {
                 break;
@@ -247,14 +241,7 @@ class Resque_Worker
                 $this->logger->log(Psr\Log\LogLevel::INFO, $status);
 
                 // Wait until the child process finishes before continuing
-                while (pcntl_wait($status, WNOHANG) === 0) {
-                    if(function_exists('pcntl_signal_dispatch')) {
-                        pcntl_signal_dispatch();
-                    }
-
-                    // Pause for a half a second to conserve system resources
-                    usleep(500000);
-                }
+                pcntl_wait($status);
 
                 if (pcntl_wifexited($status) !== true) {
                     $job->fail(new Resque_Job_DirtyExitException('Job exited abnormally'));
