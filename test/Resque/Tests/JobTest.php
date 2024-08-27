@@ -24,7 +24,7 @@ class Resque_Tests_JobTest extends Resque_Tests_TestCase
 
     public function testJobCanBeQueued()
     {
-        $this->assertTrue((bool)Resque::enqueue('jobs', 'Test_Job'));
+        $this->assertTrue((bool) Resque::enqueue('jobs', 'Test_Job'));
     }
 
     public function testRedisErrorThrowsExceptionOnJobCreation()
@@ -72,7 +72,7 @@ class Resque_Tests_JobTest extends Resque_Tests_TestCase
             ),
             'assocArray' => array(
                 'key1' => 'value1',
-                'key2' => 'value2'
+                'key2' => 'value2',
             ),
         );
         Resque::enqueue('jobs', 'Test_Job', $args);
@@ -98,7 +98,7 @@ class Resque_Tests_JobTest extends Resque_Tests_TestCase
             ),
             'assocArray' => array(
                 'key1' => 'value1',
-                'key2' => 'value2'
+                'key2' => 'value2',
             ),
         );
 
@@ -118,7 +118,7 @@ class Resque_Tests_JobTest extends Resque_Tests_TestCase
     {
         $payload = array(
             'class' => 'Failing_Job',
-            'args' => null
+            'args' => null,
         );
         $job = new Resque_Job('jobs', $payload);
         $job->worker = $this->worker;
@@ -377,7 +377,7 @@ class Resque_Tests_JobTest extends Resque_Tests_TestCase
     {
         $payload = array(
             'class' => 'Some_Job_Class',
-            'args' => null
+            'args' => null,
         );
         $job = new Resque_Job('jobs', $payload);
         $instance = $job->getInstance();
@@ -388,7 +388,7 @@ class Resque_Tests_JobTest extends Resque_Tests_TestCase
     {
         $payload = array(
             'class' => 'Some_Job_Class',
-            'args' => array(array())
+            'args' => array(array()),
         );
         $job = new Resque_Job('jobs', $payload);
         $factory = new Some_Stub_Factory();
@@ -401,7 +401,7 @@ class Resque_Tests_JobTest extends Resque_Tests_TestCase
     {
         $payload = array(
             'class' => 'Some_Job_Class',
-            'args' => array(array())
+            'args' => array(array()),
         );
         $job = new Resque_Job('jobs', $payload);
         $factory = $this->createMock(Resque_Job_FactoryInterface::class);

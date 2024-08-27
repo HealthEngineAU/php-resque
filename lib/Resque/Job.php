@@ -65,7 +65,7 @@ class Resque_Job
 
         if($args !== null && !is_array($args)) {
             throw new InvalidArgumentException(
-                'Supplied $args must be an array.'
+                'Supplied $args must be an array.',
             );
         }
         Resque::push($queue, array(
@@ -224,7 +224,7 @@ class Resque_Job
             $this->payload,
             $exception,
             $this->worker,
-            $this->queue
+            $this->queue,
         );
         Resque_Stat::incr('failed');
         Resque_Stat::incr('failed:' . $this->worker);
@@ -253,7 +253,7 @@ class Resque_Job
     public function __toString()
     {
         $name = array(
-            'Job{' . $this->queue . '}'
+            'Job{' . $this->queue . '}',
         );
         if(!empty($this->payload['id'])) {
             $name[] = 'ID: ' . $this->payload['id'];
