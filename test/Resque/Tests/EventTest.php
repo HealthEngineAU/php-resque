@@ -11,6 +11,8 @@ class Resque_Tests_EventTest extends Resque_Tests_TestCase
 {
     private $callbacksHit = array();
 
+    private $worker;
+
     public function setUp(): void
     {
         Test_Job::$called = false;
