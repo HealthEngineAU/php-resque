@@ -511,16 +511,6 @@ parameters:
 			path: lib/Resque/Log.php
 
 		-
-			message: "#^Access to an undefined property Resque_Redis\\:\\:\\$driver\\.$#"
-			count: 4
-			path: lib/Resque/Redis.php
-
-		-
-			message: "#^Call to an undefined method object\\:\\:select\\(\\)\\.$#"
-			count: 1
-			path: lib/Resque/Redis.php
-
-		-
 			message: "#^Call to function in_array\\(\\) requires parameter \\#3 to be set\\.$#"
 			count: 2
 			path: lib/Resque/Redis.php

@@ -16,7 +16,7 @@ class Resque_Stat
      */
     public static function get($stat)
     {
-        return (int)Resque::redis()->get('stat:' . $stat);
+        return (int) Resque::redis()->get('stat:' . $stat);
     }
 
     /**
@@ -28,7 +28,7 @@ class Resque_Stat
      */
     public static function incr($stat, $by = 1)
     {
-        return (bool)Resque::redis()->incrby('stat:' . $stat, $by);
+        return (bool) Resque::redis()->incrby('stat:' . $stat, $by);
     }
 
     /**
@@ -40,7 +40,7 @@ class Resque_Stat
      */
     public static function decr($stat, $by = 1)
     {
-        return (bool)Resque::redis()->decrby('stat:' . $stat, $by);
+        return (bool) Resque::redis()->decrby('stat:' . $stat, $by);
     }
 
     /**
@@ -51,6 +51,6 @@ class Resque_Stat
      */
     public static function clear($stat)
     {
-        return (bool)Resque::redis()->del('stat:' . $stat);
+        return (bool) Resque::redis()->del('stat:' . $stat);
     }
 }

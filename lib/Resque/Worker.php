@@ -105,7 +105,7 @@ class Resque_Worker
      */
     public static function exists($workerId)
     {
-        return (bool)Resque::redis()->sismember('workers', $workerId);
+        return (bool) Resque::redis()->sismember('workers', $workerId);
     }
 
     /**
@@ -217,7 +217,7 @@ class Resque_Worker
                 $exitStatus = pcntl_wexitstatus($status);
                 if($exitStatus !== 0) {
                     $job->fail(new Resque_Job_DirtyExitException(
-                        'Job exited with exit code ' . $exitStatus
+                        'Job exited with exit code ' . $exitStatus,
                     ));
                 }
             }
@@ -429,11 +429,11 @@ class Resque_Worker
         $workers = self::all();
         foreach($workers as $worker) {
             if (is_object($worker)) {
-                list($host, $pid, $queues) = explode(':', (string)$worker, 3);
+                list($host, $pid, $queues) = explode(':', (string) $worker, 3);
                 if($host != $this->hostname || in_array($pid, $workerPids) || $pid == getmypid()) {
                     continue;
                 }
-                $this->logger->log(Psr\Log\LogLevel::INFO, 'Pruning dead worker: {worker}', array('worker' => (string)$worker));
+                $this->logger->log(Psr\Log\LogLevel::INFO, 'Pruning dead worker: {worker}', array('worker' => (string) $worker));
                 $worker->unregisterWorker();
             }
         }
@@ -460,8 +460,8 @@ class Resque_Worker
      */
     public function registerWorker()
     {
-        Resque::redis()->sadd('workers', (string)$this);
-        Resque::redis()->set('worker:' . (string)$this . ':started', date('D M d H:i:s T Y'));
+        Resque::redis()->sadd('workers', (string) $this);
+        Resque::redis()->set('worker:' . (string) $this . ':started', date('D M d H:i:s T Y'));
     }
 
     /**
@@ -473,7 +473,7 @@ class Resque_Worker
             $this->currentJob->fail(new Resque_Job_DirtyExitException());
         }
 
-        $id = (string)$this;
+        $id = (string) $this;
         Resque::redis()->srem('workers', $id);
         Resque::redis()->del('worker:' . $id);
         Resque::redis()->del('worker:' . $id . ':started');
@@ -494,7 +494,7 @@ class Resque_Worker
         $data = json_encode(array(
             'queue' => $job->queue,
             'run_at' => date('D M d H:i:s T Y'),
-            'payload' => $job->payload
+            'payload' => $job->payload,
         ));
         Resque::redis()->set('worker:' . $job->worker, $data);
     }
@@ -507,8 +507,8 @@ class Resque_Worker
     {
         $this->currentJob = null;
         Resque_Stat::incr('processed');
-        Resque_Stat::incr('processed:' . (string)$this);
-        Resque::redis()->del('worker:' . (string)$this);
+        Resque_Stat::incr('processed:' . (string) $this);
+        Resque::redis()->del('worker:' . (string) $this);
     }
 
     /**

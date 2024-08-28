@@ -25,7 +25,7 @@ class Resque_Failure_Redis implements Resque_Failure_Interface
         $data->exception = get_class($exception);
         $data->error = $exception->getMessage();
         $data->backtrace = explode("\n", $exception->getTraceAsString());
-        $data->worker = (string)$worker;
+        $data->worker = (string) $worker;
         $data->queue = $queue;
         $data = json_encode($data);
         Resque::redis()->rpush('failed', $data);

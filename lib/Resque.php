@@ -175,7 +175,7 @@ class Resque
             $list[] = 'queue:' . $queue;
         }
 
-        $item = self::redis()->blpop($list, (int)$timeout);
+        $item = self::redis()->blpop($list, (int) $timeout);
 
         if(!$item) {
             return;
@@ -189,8 +189,8 @@ class Resque
         $queue = substr($item[0], strlen(self::redis()->getPrefix() . 'queue:'));
 
         return array(
-        'queue'   => $queue,
-        'payload' => json_decode($item[1], true)
+            'queue'   => $queue,
+            'payload' => json_decode($item[1], true),
         );
     }
 
@@ -334,14 +334,14 @@ class Resque
                 if($decoded['class'] == $val) {
                     return true;
                 }
-            # class name with args , example: item[0] = ['class' => {'foo' => 1, 'bar' => 2}]
+                # class name with args , example: item[0] = ['class' => {'foo' => 1, 'bar' => 2}]
             } elseif (is_array($val)) {
-                $decodedArgs = (array)$decoded['args'][0];
+                $decodedArgs = (array) $decoded['args'][0];
                 if ($decoded['class'] == $key &&
                 count($decodedArgs) > 0 && count(array_diff($decodedArgs, $val)) == 0) {
                     return true;
                 }
-            # class name with ID, example: item[0] = ['class' => 'id']
+                # class name with ID, example: item[0] = ['class' => 'id']
             } else {
                 if ($decoded['class'] == $key && $decoded['id'] == $val) {
                     return true;

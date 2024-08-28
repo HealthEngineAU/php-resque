@@ -78,7 +78,7 @@ class Resque_Redis
         'zremrangebyscore',
         'sort',
         'rename',
-        'rpoplpush'
+        'rpoplpush',
     );
     // sinterstore
     // sunion
@@ -91,6 +91,11 @@ class Resque_Redis
     // msetnx
     // mset
     // renamenx
+
+    /**
+     * @var Credis_Client|Credis_Cluster
+     */
+    public $driver;
 
     /**
      * Set Redis namespace (prefix) default: resque
@@ -108,14 +113,14 @@ class Resque_Redis
      * @param string|array $server A DSN or array
      * @param int $database A database number to select. However, if we find a valid database number in the DSN the
      *                      DSN-supplied value will be used instead and this parameter is ignored.
-     * @param object $client Optional Credis_Cluster or Credis_Client instance instantiated by you
+     * @param Credis_Client|Credis_Cluster $client Optional Credis_Cluster or Credis_Client instance instantiated by you
      */
     public function __construct($server, $database = null, $client = null)
     {
         try {
             if (is_array($server)) {
                 $this->driver = new Credis_Cluster($server);
-            } elseif (is_object($client)) {
+            } elseif ($client instanceof Credis_Client || $client instanceof Credis_Cluster) {
                 $this->driver = $client;
             } else {
                 list($host, $port, $dsnDatabase, $user, $password, $options) = self::parseDsn($server);

@@ -16,7 +16,7 @@ class Resque_Tests_WorkerTest extends Resque_Tests_TestCase
         $worker->registerWorker();
 
         // Make sure the worker is in the list
-        $this->assertTrue((bool)$this->redis->sismember('resque:workers', (string)$worker));
+        $this->assertTrue((bool) $this->redis->sismember('resque:workers', (string) $worker));
     }
 
     public function testGetAllWorkers()
@@ -39,8 +39,8 @@ class Resque_Tests_WorkerTest extends Resque_Tests_TestCase
         $worker->setLogger(new Resque_Log());
         $worker->registerWorker();
 
-        $newWorker = Resque_Worker::find((string)$worker);
-        $this->assertEquals((string)$worker, (string)$newWorker);
+        $newWorker = Resque_Worker::find((string) $worker);
+        $this->assertEquals((string) $worker, (string) $newWorker);
     }
 
     public function testInvalidWorkerDoesNotExist()
@@ -55,7 +55,7 @@ class Resque_Tests_WorkerTest extends Resque_Tests_TestCase
         $worker->registerWorker();
         $worker->unregisterWorker();
 
-        $this->assertFalse(Resque_Worker::exists((string)$worker));
+        $this->assertFalse(Resque_Worker::exists((string) $worker));
         $this->assertEquals(array(), Resque_Worker::all());
         $this->assertEquals(array(), $this->redis->smembers('resque:workers'));
     }
@@ -88,7 +88,7 @@ class Resque_Tests_WorkerTest extends Resque_Tests_TestCase
     {
         $worker = new Resque_Worker(array(
             'queue1',
-            'queue2'
+            'queue2',
         ));
         $worker->setLogger(new Resque_Log());
         $worker->registerWorker();
@@ -107,7 +107,7 @@ class Resque_Tests_WorkerTest extends Resque_Tests_TestCase
         $worker = new Resque_Worker(array(
             'high',
             'medium',
-            'low'
+            'low',
         ));
         $worker->setLogger(new Resque_Log());
         $worker->registerWorker();
@@ -172,7 +172,7 @@ class Resque_Tests_WorkerTest extends Resque_Tests_TestCase
         $worker->registerWorker();
 
         $payload = array(
-            'class' => 'Test_Job'
+            'class' => 'Test_Job',
         );
         $job = new Resque_Job('jobs', $payload);
         $worker->workingOn($job);
@@ -248,7 +248,7 @@ class Resque_Tests_WorkerTest extends Resque_Tests_TestCase
         // my.other.host should be left
         $workers = Resque_Worker::all();
         $this->assertEquals(1, count($workers));
-        $this->assertEquals((string)$worker, (string)$workers[0]);
+        $this->assertEquals((string) $worker, (string) $workers[0]);
     }
 
     public function testWorkerFailsUncompletedJobsOnExit()
@@ -258,7 +258,7 @@ class Resque_Tests_WorkerTest extends Resque_Tests_TestCase
         $worker->registerWorker();
 
         $payload = array(
-            'class' => 'Test_Job'
+            'class' => 'Test_Job',
         );
         $job = new Resque_Job('jobs', $payload);
 
